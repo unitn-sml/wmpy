@@ -5,9 +5,9 @@ env:
 
 on:
   push:
-    branches: [ master, uv-dev ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, uv-dev ]
+    branches: [ master ]
 
 jobs:
   test:
