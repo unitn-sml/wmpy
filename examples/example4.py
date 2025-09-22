@@ -1,4 +1,17 @@
-from pysmt.shortcuts import GE, LE, And, Bool, Iff, Implies, Ite, Not, Or, Real, Symbol, Times
+from pysmt.shortcuts import (
+    GE,
+    LE,
+    And,
+    Bool,
+    Iff,
+    Implies,
+    Ite,
+    Not,
+    Or,
+    Real,
+    Symbol,
+    Times,
+)
 from pysmt.typing import BOOL, REAL
 
 from wmpy.solvers import WMISolver
@@ -33,8 +46,4 @@ for phi in phis:
     wmi = WMISolver(chi, w)
     result, n_integrations = wmi.compute(phi, {x})
     print("Query: {}".format(phi.serialize()))
-    print(
-        "WMI \t result = {}, \t # integrations = {}".format(
-            result, n_integrations
-        )
-    )
+    print("WMI \t result = {}, \t # integrations = {}".format(result, n_integrations))

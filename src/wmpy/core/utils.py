@@ -58,7 +58,9 @@ class LiteralNormalizer:
             self._cache[literal] = normalized_literal
         return self._cache[literal]
 
-    def normalize(self, literal: FNode, remember_alias: bool = False) -> tuple[FNode, bool]:
+    def normalize(
+        self, literal: FNode, remember_alias: bool = False
+    ) -> tuple[FNode, bool]:
         """Normalizes 'literal', possibly storing original formula in the alias dictionary.
 
         Args:

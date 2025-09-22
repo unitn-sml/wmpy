@@ -18,22 +18,22 @@ def make_variables(dim=2):
 
 
 def make_domain(dim=2):
-    return Domain.make([], ["x{}".format(i) for i in range(dim)], [(0, 1) for _ in range(dim)])
+    return Domain.make(
+        [], ["x{}".format(i) for i in range(dim)], [(0, 1) for _ in range(dim)]
+    )
 
 
 def make_small_square(width, dim=2):
     epsilon = float(1 - width) / 2
     return And(
-        And(GE(x, Real(epsilon)), LE(x, Real(1 - epsilon)))
-        for x in make_variables(dim)
+        And(GE(x, Real(epsilon)), LE(x, Real(1 - epsilon))) for x in make_variables(dim)
     )
 
 
 def make_small_squares_corners(width, dim=2):
     epsilon = float(width)
     return And(
-        Or(LE(x, Real(epsilon)), GE(x, Real(1 - epsilon)))
-        for x in make_variables(dim)
+        Or(LE(x, Real(epsilon)), GE(x, Real(1 - epsilon))) for x in make_variables(dim)
     )
 
 
@@ -41,9 +41,11 @@ def make_triangle(width):
     epsilon = (1 - float(width)) / 2
     x, y = make_variables()
     return And(
-        GE(x, Real(epsilon)), LE(x, Real(1 - epsilon)),
-        GE(y, Real(epsilon)), LE(y, Real(1 - epsilon)),
-        LE(y, Real(1) - x)
+        GE(x, Real(epsilon)),
+        LE(x, Real(1 - epsilon)),
+        GE(y, Real(epsilon)),
+        LE(y, Real(1 - epsilon)),
+        LE(y, Real(1) - x),
     )
 
 
@@ -52,14 +54,16 @@ def make_polynomial(degree, dim=2):
 
     coeff = Real(2)
 
-    return coeff * Plus(
-        [Pow(x, e) for x in make_variables(dim)]
-    )
+    return coeff * Plus([Pow(x, e) for x in make_variables(dim)])
 
 
 def volesti(support, q, w):
     def volesti_wmi(seed):
-        wmi = WMISolver(And(q, support), w, integrator=VolestiIntegrator(seed=seed, walk_type="CDHR", N=1000))
+        wmi = WMISolver(
+            And(q, support),
+            w,
+            integrator=VolestiIntegrator(seed=seed, walk_type="CDHR", N=1000),
+        )
         return wmi.compute(Bool(True))[0]
 
     return volesti_wmi
@@ -100,7 +104,9 @@ def get_results(problems):
     return v_avg_rel_err, v_std_rel_err, r_avg_rel_err, r_std_rel_err
 
 
-def plot_results(v_avg_rel_err, v_std_rel_err, r_avg_rel_err, r_std_rel_err, title, xlabel, xticks):
+def plot_results(
+    v_avg_rel_err, v_std_rel_err, r_avg_rel_err, r_std_rel_err, title, xlabel, xticks
+):
     fig, ax = plt.subplots()
     ax.set_title(title)
     ax.set_xlabel(xlabel)
@@ -110,13 +116,19 @@ def plot_results(v_avg_rel_err, v_std_rel_err, r_avg_rel_err, r_std_rel_err, tit
 
     ax.plot(range(len(v_avg_rel_err)), v_avg_rel_err, label="Volesti")
     ax.plot(range(len(r_avg_rel_err)), r_avg_rel_err, label="Rejection")
-    ax.fill_between(range(len(v_avg_rel_err)), np.array(v_avg_rel_err) - np.array(v_std_rel_err),
-                    np.array(v_avg_rel_err) + np.array(v_std_rel_err), alpha=0.2)
-    ax.fill_between(range(len(r_avg_rel_err)), np.array(r_avg_rel_err) - np.array(r_std_rel_err),
-                    np.array(r_avg_rel_err) + np.array(r_std_rel_err), alpha=0.2)
+    ax.fill_between(
+        range(len(v_avg_rel_err)),
+        np.array(v_avg_rel_err) - np.array(v_std_rel_err),
+        np.array(v_avg_rel_err) + np.array(v_std_rel_err),
+        alpha=0.2,
+    )
+    ax.fill_between(
+        range(len(r_avg_rel_err)),
+        np.array(r_avg_rel_err) - np.array(r_std_rel_err),
+        np.array(r_avg_rel_err) + np.array(r_std_rel_err),
+        alpha=0.2,
+    )
 
     ax.legend()
     plt.savefig(title + ".png")
     plt.clf()
-
-

@@ -10,13 +10,13 @@ This module mixtures for numerical constants of general interest.
 # floating point numbers
 
 floats_pos = [
-    #sys.float_info.min,
+    # sys.float_info.min,
     1e-8,
-    #1/2,
+    # 1/2,
     1.0,
     1e8,
-    #1e10,
-    #sys.float_info.max/2,
+    # 1e10,
+    # sys.float_info.max/2,
 ]
 floats_neg = [-c for c in floats_pos]
 floats = floats_pos + floats_neg + [0.0]

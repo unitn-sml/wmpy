@@ -26,7 +26,6 @@ rn3 = smt.Real(-3)
 r4 = smt.Real(4)
 
 
-
 def test_no_booleans_constant_weight(enumerator, exact_integrator):
     chi = smt.And(smt.GE(x, r0), smt.LE(x, r1))
 
@@ -161,7 +160,9 @@ def test_aliases_leads_to_not_sat(enumerator, exact_integrator):
     assert np.isclose(result, 0)
 
 
-def test_double_assignment_same_variable_no_theory_consistent(enumerator, exact_integrator):
+def test_double_assignment_same_variable_no_theory_consistent(
+    enumerator, exact_integrator
+):
     chi = smt.And(
         smt.GE(x, r0),
         smt.Equals(y, smt.Plus(x, rn2)),
@@ -198,4 +199,3 @@ def test_reserved_variables_name(enumerator, exact_integrator):
     result = ans["wmi"]
 
     assert np.isclose(result, 7)
-

@@ -35,8 +35,4 @@ print()
 
 wmi = WMISolver(chi, w)
 result, n_integrations = wmi.compute(phi, {x})
-print(
-    "WMI \t result = {}, \t # integrations = {}".format(
-        result, n_integrations
-    )
-)
+print("WMI \t result = {}, \t # integrations = {}".format(result, n_integrations))

@@ -353,7 +353,7 @@ def main() -> None:
     w = smt.Real(666)
 
     domain: dict[FNode, Optional[tuple[Optional[float], Optional[float]]]]
-    domain = {x: (0., 1.), y: (0., None), A: None}
+    domain = {x: (0.0, 1.0), y: (0.0, None), A: None}
 
     path = "test.json"
 

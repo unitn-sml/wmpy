@@ -1,4 +1,3 @@
-
 from sys import argv
 from pysmt.shortcuts import *
 
@@ -11,7 +10,7 @@ l, u, m = map(float, argv[1:])
 
 x = Symbol("x", REAL)
 
-h = 2 / (u - l) # ensures a normalized distribution
+h = 2 / (u - l)  # ensures a normalized distribution
 
 a1 = h / (m - l)
 b1 = -a1 * l
@@ -21,18 +20,18 @@ b2 = -a2 * u
 
 support = And(LE(Real(l), x), LE(x, Real(u)))
 
-linear = lambda a, b : Plus(Times(Real(a), x), Real(b))
+linear = lambda a, b: Plus(Times(Real(a), x), Real(b))
 
-w = Ite(LE(x, Real(m)),
-        linear(a1, b1),
-        linear(a2, b2),
-    )
+w = Ite(
+    LE(x, Real(m)),
+    linear(a1, b1),
+    linear(a2, b2),
+)
 
 enumerator = TotalEnumerator(support, w, get_env())
 integrator = LattEIntegrator()
 
 wmi_solver = WMISolver(enumerator, integrator)
 
- 
-print(f"WMI of {serialize(w)} is:", wmi_solver.compute( Bool(True), {x})["wmi"])
-   
+
+print(f"WMI of {serialize(w)} is:", wmi_solver.compute(Bool(True), {x})["wmi"])

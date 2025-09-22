@@ -34,5 +34,5 @@ ax.set(
     zticks=[],
 )
 
-#plt.show()
+# plt.show()
 plt.savefig("source/images/relu3d.png")

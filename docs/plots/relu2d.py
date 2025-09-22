@@ -22,5 +22,5 @@ ax.set(
 )
 
 plt.gca().set_aspect("equal")
-#plt.show()
+# plt.show()
 plt.savefig("source/images/relu2d.png")

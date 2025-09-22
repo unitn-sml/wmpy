@@ -6,14 +6,14 @@ MESH_DENSITY = 1
 FONT_SIZE = 8
 
 
-plt.rcParams.update({'font.size': FONT_SIZE})
+plt.rcParams.update({"font.size": FONT_SIZE})
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
 x = np.arange(0, 10, MESH_DENSITY)
 y = np.arange(0, 10, MESH_DENSITY)
 z = np.arange(0, 10, MESH_DENSITY)
 X, Y = np.meshgrid(x, y)
-Z = np.abs(X * np.sin((X + Y)*17))
+Z = np.abs(X * np.sin((X + Y) * 17))
 
 norm = plt.Normalize(Z.min(), Z.max())
 

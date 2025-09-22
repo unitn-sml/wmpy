@@ -9,6 +9,7 @@ def expand_path(path_str: str) -> Path:
     """Expand environment variables and user home directory in path."""
     return Path(os.path.expandvars(os.path.expanduser(path_str))).resolve()
 
+
 class Installer(metaclass=ABCMeta):
     def __init__(
         self, install_path: str, include_paths: list[str], lib_paths: list[str]

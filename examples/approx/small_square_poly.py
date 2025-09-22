@@ -1,7 +1,13 @@
 import numpy as np
 from pysmt.shortcuts import And, Bool
 
-from approx import make_domain, make_small_square, make_polynomial, get_results, plot_results
+from approx import (
+    make_domain,
+    make_small_square,
+    make_polynomial,
+    get_results,
+    plot_results,
+)
 from wmpy.solvers import WMISolver
 
 if __name__ == "__main__":
@@ -10,10 +16,20 @@ if __name__ == "__main__":
     domain = make_domain()
     support = domain.get_bounds()
 
-    problems = [(q := make_small_square(0.5), w := make_polynomial(degree),
-                 WMISolver(And(q, support), w).compute(Bool(True))[0],
-                 domain)
-                for degree in range(2, MD + 1, 2)]
+    problems = [
+        (
+            q := make_small_square(0.5),
+            w := make_polynomial(degree),
+            WMISolver(And(q, support), w).compute(Bool(True))[0],
+            domain,
+        )
+        for degree in range(2, MD + 1, 2)
+    ]
 
     results = get_results(problems)
-    plot_results(*results, "small square poly", "Polynomial degree", [str(degree) for degree in range(2, MD + 1, 2)])
+    plot_results(
+        *results,
+        "small square poly",
+        "Polynomial degree",
+        [str(degree) for degree in range(2, MD + 1, 2)],
+    )

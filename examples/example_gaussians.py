@@ -1,9 +1,11 @@
 try:
     from pysmt.shortcuts import PI, Exp
 except ImportError:
-    raise ImportError("""Couldn't import PI or Exp from pysmt.shortcuts.
+    raise ImportError(
+        """Couldn't import PI or Exp from pysmt.shortcuts.
 Install wmpy with the extras_require option for non-linear arithmetic: 
-    pip install wmpy[nra]""")
+    pip install wmpy[nra]"""
+    )
 from pysmt.shortcuts import GE, LE, And, Bool, Pow, Real, Symbol, Div, Times
 from pysmt.typing import REAL
 
@@ -32,8 +34,4 @@ print("Weight function:", w.serialize())
 print()
 wmi = WMISolver(chi, w, integrator=VolestiIntegrator())
 result, n_integrations = wmi.compute(phi, {x})
-print(
-    "WMI \t result = {}, \t # integrations = {}".format(
-        result, n_integrations
-    )
-)
+print("WMI \t result = {}, \t # integrations = {}".format(result, n_integrations))
