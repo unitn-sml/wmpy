@@ -38,8 +38,7 @@ Welcome to the wmpy documentation
    ... ``pip install wmpy`` !
 
 
-**WM\*PY** (``wmpy``) is a modular library for solving quantitative
- reasoning tasks over logical and algebraic constraints.
+**WM\*PY** (``wmpy``) is a modular library for solving quantitative reasoning tasks over logical and algebraic constraints.
 
 Our goals:
 

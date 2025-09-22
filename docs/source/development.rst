@@ -18,13 +18,11 @@ Roadmap
 * Encoding ML models from popular libraries (sklearn, pytorch)
 
 
-How to contribute
------------------
+Contributing
+------------
 
-Feedback, pull requests, active development.. any form of contribution
-is much welcome!
-
-If you want to get in touch, contact Paolo Morettin (paolo.morettin@unitn.it).
+.. include:: ../../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
 
 
 Acknowledgements
