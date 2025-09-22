@@ -4,3 +4,9 @@
 [![codecov](https://codecov.io/github/unitn-sml/wmpy/branch/master/graph/badge.svg?token=VIN9CAWNZP)](https://codecov.io/github/unitn-sml/wmpy)
 
 Read the docs: TODO
+
+[Installation](INSTALL.md)
+
+[Contributing](CONTRIBUTING.md)
+
+[License](LICENSE.md)
