@@ -17,8 +17,10 @@ build:
     
   commands:
   
-    - pip install uv    
-    - uv run python -m sphinx docs $READTHEDOCS_OUTPUT/html -b html -W
+    - pip install uv
+    - cd docs
+    - uv run make html
+    - cd ..
 
 # Build documentation in the "docs/" directory with Sphinx
 
