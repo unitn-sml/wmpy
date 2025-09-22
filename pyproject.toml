@@ -16,11 +16,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "networkx==3.5",
-    "numpy==2.3.3",
+    "networkx",
+    "numpy",
     "PySMT>=0.9.7.dev333",
-    "scipy==1.16.2",
-    "z3-solver==4.15.3.0",
+    "scipy",
+    "setuptools>=80.9.0",
+    "z3-solver",
 ]
 
 [project.urls]
@@ -28,13 +29,6 @@ Homepage = "https://github.com/unitn-sml/wmpy"
 Repository = "https://github.com/unitn-sml/wmpy"
 
 [project.optional-dependencies]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinx-autodoc-typehints", "nbsphinx", "ipython", "jupytext", "jupyter", "matplotlib", "myst-parser"]
-test = ["pytest", "pytest-runner", "pytest-cov"]
-typing = [
-    "mypy",
-    "types-networkx==3.5.0.20250918; python_version>='3.10'",
-    "scipy-stubs==1.16.2.0; python_version>='3.11'",
-]
 #nra = ["pysmt @ git+https://git@github.com/masinag/pysmt@nrat#egg=pysmt"]
 
 [project.scripts]
@@ -59,7 +53,7 @@ warn_unreachable = true
 warn_unused_configs = true
 disable_error_code = ["import-untyped"]
 
-files = ["src/wmpy/"] # files to check
+files = ["src/wmpy/"] # files to type check
 
 [[tool.mypy.overrides]]
 module = ["mathsat", "pysmt.*"]
@@ -78,4 +72,12 @@ omit = ["src/wmpy/cli/*"]
 exclude_also = [
     # Don't complain about abstract methods, they aren't run:
     "@(abc\\.)?abstractmethod",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
 ]

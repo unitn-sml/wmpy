@@ -1,10 +1,13 @@
 name: Build and Test (Python 3.9+, macOS, Linux)
 
+env:
+  UV_VERSION: 0.8.19
+
 on:
   push:
-    branches: [ master ]
+    branches: [ master, uv-dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, uv-dev ]
 
 jobs:
   test:
@@ -25,14 +28,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install setuptools
-        run: pip install setuptools
+      - name: Install uv
+        run: |
+          python3 --version
+          python3 -m pip install -U pip
+          python3 -m pip install 'uv==${{ env.UV_VERSION }}'
+          uv --version
 
       - name: Install package
-        run: pip install -e ".[test,typing]"
+        run: uv sync
 
       - name: Install system dependencies
         run: |
@@ -53,13 +57,13 @@ jobs:
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             export DYLD_LIBRARY_PATH=/opt/homebrew/lib:$DYLD_LIBRARY_PATH
           fi
-          wmpy install --msat --latte --install-path ./wmpy-bin -y
+          uv run wmpy install --msat --latte --install-path ./wmpy-bin -y
           echo "$GITHUB_WORKSPACE/wmpy-bin/latte/bin" >> $GITHUB_PATH
         shell: bash
 
       - name: Run mypy
         # NOTE: some type stubs are not available for Python < 3.11
-        run: mypy
+        run: uv run mypy
 
       - name: Run tests and collect coverage
         # NOTE: coverage is only collected for Python 3.12 on Linux
@@ -68,10 +72,10 @@ jobs:
             export DYLD_LIBRARY_PATH=/opt/homebrew/lib:$DYLD_LIBRARY_PATH
           fi
           if [[ "${{ matrix.os }}" == "ubuntu-latest" && "${{ matrix.python-version }}" == "3.12" ]]; then
-            coverage run -m pytest
-            coverage xml
+            uv run coverage run -m pytest
+            uv run coverage xml
           else
-            pytest
+            uv run pytest
           fi
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
