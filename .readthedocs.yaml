@@ -22,7 +22,7 @@ build:
 
     build:
       html:
-        - uv run sphinx-build docs/source/ $READTHEDOCS_OUTPUT html
+	- uv run sphinx-build -M html docs/source/ $READTHEDOCS_OUTPUT
 
 
 # Optionally build your docs in additional formats such as PDF and ePub
