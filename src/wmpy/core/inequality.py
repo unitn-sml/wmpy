@@ -1,5 +1,6 @@
 from typing import Any, Collection
 
+import numpy as np
 from pysmt.environment import Environment
 from pysmt.fnode import FNode
 
@@ -42,6 +43,21 @@ class Inequality:
         poly_sub = self.mgr.Plus(p1, self.mgr.Times(self.mgr.Real(-1), p2))
         self.polynomial = Polynomial(poly_sub, variables, env)
         assert self.polynomial.degree == 1
+
+    def to_numpy(self) -> tuple[np.ndarray, float]:
+        """Converts the inequality in numpy format:
+
+            A {<=,<} b
+
+        Returns:
+            A numpy array A, a scalar b
+        """
+        N = len(self.polynomial.variables)
+        const_key = tuple(0 for _ in range(N))
+        key = lambda i: tuple(1 if j == i else 0 for j in range(N))
+        A = [self.polynomial.monomials.get(key(i), 0) for i in range(N)]
+        b = -self.polynomial.monomials.get(const_key, 0)
+        return np.array(A), b
 
     def to_pysmt(self) -> FNode:
         """Converts the inequality in pysmt format.

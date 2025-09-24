@@ -44,18 +44,18 @@ def higher_degree_expr(f_vec2):
 )
 def test_ineq_no_variables(expression):
     with pytest.raises(ValueError):
-        _ = Inequality(expression, {}, env=env)
+        _ = Inequality(expression, [], env=env)
 
 
 def test_ineq_degree_zero(zero_degree_expr):
     with pytest.raises(AssertionError):
-        _ = Inequality(zero_degree_expr, {x}, env=env)
+        _ = Inequality(zero_degree_expr, [x], env=env)
 
 
 def test_ineq_degree_more_than_one():
     expression = smt.LE(smt.Pow(x, smt.Real(2)), r1)
     with pytest.raises(AssertionError):
-        _ = Inequality(expression, {x}, env=env)
+        _ = Inequality(expression, [x], env=env)
 
 
 @pytest.mark.parametrize(
@@ -69,8 +69,13 @@ def test_ineq_degree_more_than_one():
     ],
 )
 def test_ineq_univariate(expression):
-    ineq = Inequality(expression, {x}, env=env)
+    ineq = Inequality(expression, [x], env=env)
     assert equivalent_expressions(expression, ineq.to_pysmt())
+    A, b = ineq.to_numpy()
+    from_numpy = smt.LE(smt.Times(smt.Real(float(A[0])), x),
+                        smt.Real(float(b)))
+    assert equivalent_expressions(expression, from_numpy)
+    
 
 
 @pytest.mark.parametrize(
@@ -84,5 +89,9 @@ def test_ineq_univariate(expression):
     ],
 )
 def test_ineq_no_bivariate(expression):
-    ineq = Inequality(expression, {x, y}, env=env)
+    ineq = Inequality(expression, [x, y], env=env)
+    A, b = ineq.to_numpy()
+    from_numpy = smt.LE(smt.Plus(smt.Times(smt.Real(float(A[0])), x),
+                                 smt.Times(smt.Real(float(A[1])), y)),
+                        smt.Real(float(b)))
     assert equivalent_expressions
