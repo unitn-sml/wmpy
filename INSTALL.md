@@ -8,7 +8,7 @@ pip install wmpy
 
 wmpy comes installed with:
 
-- a default enumerator (based on the [z3 SMT-solver](https://github.com/Z3Prover/z3))
+- a default enumerator (based on the [z3 SMT solver](https://github.com/Z3Prover/z3))
 - a default integration backend (approximate, based on rejection-sampling).
 
 ## Additional requirements
@@ -38,7 +38,7 @@ options:
 ```
 
 E.g., for using the state-of-the-art Structure-Aware Enumerator (`SAEnumerator`), install
-the [MathSAT5 SMT-solver](https://mathsat.fbk.eu/) API.
+the [MathSAT5 SMT solver](https://mathsat.fbk.eu/) API.
 For an exact integration backend, install the [LattE integrale](https://github.com/latte-int/latte/) library.
 
 To install these requirements, you can run:

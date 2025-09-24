@@ -37,3 +37,14 @@ Before pushing to remote
 
 - Make sure to reformat the source code: `uv run black`
 
+
+Conventions
+-----------
+
+We adopt the following conventions
+
+- Python code format: [PEP8](https://peps.python.org/pep-0008/)
+
+- Docstrings: [PEP257](https://peps.python.org/pep-0257/), Google [style](https://google.github.io/styleguide/pyguide.html)
+
+- Version numbers: [semantic versioning](https://semver.org/)

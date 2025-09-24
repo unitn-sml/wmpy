@@ -38,6 +38,10 @@ As a result, the core design principle of ``wmpy`` is **modularity**:
 we designed different classes in order to be used as stand-alone
 objects as well as sub-components of a larger solver.
 
+.. image:: images/structure.png
+   :scale: 40 %
+   :align: center
+
 Enumerators
 """""""""""
 
@@ -105,7 +109,7 @@ For some applications, the output of an enumerator is already in the
 ideal format.
 
 For all other use cases, ``wmpy`` leverages intermediate internal
-representations for polytopes and polynomials. The classes
+representations for convex polytopes and polynomials. The classes
 ``Polytope`` and ``Polynomial`` are meant to implement all the useful
 function for manipulating these algebraic objects.
 

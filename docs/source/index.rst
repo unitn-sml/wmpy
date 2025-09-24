@@ -19,16 +19,22 @@
    wmpy
 
 
-Welcome to the wmpy documentation
+Welcome to the WM*PY documentation
 ==================================
 
 .. centered::
-   ``wmpy`` :math:`=` **quantitative reasoning** over **algebraic** and
+   ``wmpy`` :math:`=` reasoning over **weighted algebraic** and
    **logical constraints** in ``python3``
 
 .. math::
 
-   P(x \ge y \:|\: y / 2 \le \pi) = ??
+   P(x \ge y \:|\: y / 2 \le \pi) = ?? \quad\quad\quad\quad \text{ (marginals)}
+
+   P(x + y > 3/4) \le 0.01 ??  \quad\quad\quad\quad \text{ (bounds)}
+
+   argmax_y \: P(x, y) = ?? \quad\quad \text{ (optimization)}
+
+   x \sim P(x \: | \: x \ge y) \quad\quad\quad\quad \text{ (sampling)}
 
 .. image:: images/intro-cropped.png
    :scale: 30 %
@@ -37,13 +43,18 @@ Welcome to the wmpy documentation
 .. centered::
    ... ``pip install wmpy`` !
 
+**WM\*** (weighted model \*) denotes any problem that is defined on the
+models (solutions) of an SMT-LRA formula, i.e. any combination of
+logical and linear constraints over Boolean and continuous variables.
 
 **WM\*PY** (``wmpy``) is a modular library for solving quantitative reasoning tasks over logical and algebraic constraints.
 
-Our goals:
+This library:
 
-* Facilitating the integration of state-of-the-art WM* technology into your project
-* Providing a flexible framework for the development of novel solvers
+* Facilitates the integration of state-of-the-art WM* technology into your project
+* Provides a flexible framework for the development of novel solvers
+
+
 
 **Unfamiliar with WMI or SMT?** :ref:`Read <theory>` our theory primer first.
 
