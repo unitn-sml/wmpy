@@ -1,6 +1,3 @@
-__version__ = "0.999"
-__author__ = "Paolo Morettin"
-
 import subprocess
 from fractions import Fraction
 from functools import reduce

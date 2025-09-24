@@ -1,6 +1,3 @@
-__version__ = "1.1"
-__author__ = "Gabriele Masina, Paolo Morettin, Giuseppe Spallitta"
-
 from typing import Collection, Optional
 
 import numpy as np
