@@ -12,4 +12,6 @@ WM*PY (wmpy) is an open-source `python3` library for solving reasoning tasks ove
 
 [Contributing](CONTRIBUTING.md)
 
+[Changelog](CHANGELOG.md)
+
 [License](LICENSE.md)
