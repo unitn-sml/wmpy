@@ -127,7 +127,7 @@ class LattEIntegrator:
 
         This requires converting all the coefficients to integers.
         """
-        A, b, _, _ = polytope.to_numpy(ignore_strictness=True)
+        A, b, _ = polytope.to_numpy()
         bA = np.concatenate((b.reshape(-1, 1), A), axis=1)
 
         f_den = np.vectorize(lambda x: Fraction(x).denominator)

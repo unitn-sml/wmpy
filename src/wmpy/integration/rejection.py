@@ -35,7 +35,7 @@ class RejectionIntegrator:
         Returns:
             The result of the integration as a non-negative scalar value.
         """
-        A, b, _, _ = polytope.to_numpy(ignore_strictness=True)
+        A, b, _ = polytope.to_numpy()
 
         # compute the enclosing axis-aligned bounding box (lower, upper)
         lowerl, upperl = [], []

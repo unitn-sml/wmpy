@@ -72,10 +72,8 @@ def test_ineq_univariate(expression):
     ineq = Inequality(expression, [x], env=env)
     assert equivalent_expressions(expression, ineq.to_pysmt())
     A, b = ineq.to_numpy()
-    from_numpy = smt.LE(smt.Times(smt.Real(float(A[0])), x),
-                        smt.Real(float(b)))
+    from_numpy = smt.LE(smt.Times(smt.Real(float(A[0])), x), smt.Real(float(b)))
     assert equivalent_expressions(expression, from_numpy)
-    
 
 
 @pytest.mark.parametrize(
@@ -91,7 +89,10 @@ def test_ineq_univariate(expression):
 def test_ineq_no_bivariate(expression):
     ineq = Inequality(expression, [x, y], env=env)
     A, b = ineq.to_numpy()
-    from_numpy = smt.LE(smt.Plus(smt.Times(smt.Real(float(A[0])), x),
-                                 smt.Times(smt.Real(float(A[1])), y)),
-                        smt.Real(float(b)))
+    from_numpy = smt.LE(
+        smt.Plus(
+            smt.Times(smt.Real(float(A[0])), x), smt.Times(smt.Real(float(A[1])), y)
+        ),
+        smt.Real(float(b)),
+    )
     assert equivalent_expressions

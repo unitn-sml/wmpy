@@ -46,23 +46,20 @@ def test_polytope_conversion(Ab):
     A, b = Ab
     M, N = A.shape
     vx = [smt.Symbol(f"x{i}", smt.REAL) for i in range(N)]
-    strict_inequalities, nonstrict_inequalities = [], []
+    inequalities = []
     for i in range(M):
         Asmt = smt.Plus([smt.Times(smt.Real(float(A[i][j])), vx[j]) for j in range(N)])
         bsmt = smt.Real(float(b[i]))
-        if i < M/2:
-            nonstrict_inequalities.append(smt.LE(Asmt, bsmt))
-        else:
-            strict_inequalities.append(smt.LT(Asmt, bsmt))
-
-    inequalities = strict_inequalities + nonstrict_inequalities
+        relsmt = smt.LE if i % 2 == 0 else smt.LT
+        inequalities.append(relsmt(Asmt, bsmt))
 
     polytope = Polytope(inequalities, vx, env=env)
-    An, bn, As, bs = polytope.to_numpy()
-    Aconv = np.concatenate((An, As), axis=0) if len(As) > 0 else An
-    bconv = np.concatenate((bn, bs), axis=0)
+    Aconv, bconv, sconv = polytope.to_numpy()
     assert (Aconv == A).all(), f"numpy conversion error\nA:\n{A}\nA':\n{Aconv}"
     assert (bconv == b).all(), f"numpy conversion error\nb:\n{b}\nb':\n{bconv}"
+    assert (
+        sconv == np.array([i % 2 for i in range(M)])
+    ).all(), f"numpy conversion error\ns:\n{sconv}\nstrictness vector non-matching"
 
     f = smt.And(*inequalities)
     fconv = polytope.to_pysmt()
