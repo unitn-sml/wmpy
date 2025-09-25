@@ -47,4 +47,6 @@ We adopt the following conventions
 
 - Docstrings: [PEP257](https://peps.python.org/pep-0257/), Google [style](https://google.github.io/styleguide/pyguide.html)
 
-- Version numbers: [semantic versioning](https://semver.org/)
+- Version numbers: [semantic versioning](https://semver.org/spec/v2.0.0.html)
+
+- Changelog formatting: [keepachangelog](https://keepachangelog.com/en/1.1.0/)

@@ -4,18 +4,11 @@
 Development
 ===========
 
-Roadmap
--------
+Changelog
+---------
 
-* Support for other quantitative tasks on weighted SMT formulas
-
-  * Optimization
-
-  * Lower / upper bound computations
-
-* Knowledge compilation techniques
-
-* Encoding ML models from popular libraries (sklearn, pytorch)
+.. include:: ../../CHANGELOG.md
+   :parser: myst_parser.sphinx_
 
 
 Contributing

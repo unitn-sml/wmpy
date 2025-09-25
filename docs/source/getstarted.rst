@@ -15,7 +15,7 @@ Installation and Command Line Interface
 A short tour
 ------------
 
-``wmpy`` evolved from ``wmpy``, a state-of-the-art SMT-based WMI
+``wmpy`` evolved from ``wmipa``, a state-of-the-art SMT-based WMI
 solver, with the goal of further extending its modular approach and
 potentially accomodate other computational tasks over weighted SMT formulas.
 
