@@ -44,10 +44,15 @@ class Polynomial:
     @property
     def degree(self) -> int:
         """Returns the degree of the polynomial."""
-        if len(self.monomials) == 0:
+        if self.is_zero:
             return 0
         else:
             return max(sum(exponents) for exponents in self.monomials)
+
+    @property
+    def is_zero(self) -> bool:
+        """Returns true if the polynomial is zero."""
+        return len(self.monomials) == 0
 
     def to_numpy(self) -> Callable[[np.ndarray], np.ndarray]:
         """Returns the polynomial as a callable function.

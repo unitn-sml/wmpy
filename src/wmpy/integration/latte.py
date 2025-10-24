@@ -55,6 +55,9 @@ class LattEIntegrator:
             The result of the integration as a non-negative scalar value.
         """
 
+        if polynomial.is_zero:
+            return 0.0
+
         with TemporaryDirectory(dir=".") as tmpdir:
             tmpdir_path = Path(tmpdir).resolve()
             polytope_path = tmpdir_path / self._POLYTOPE_FILENAME
@@ -90,8 +93,9 @@ class LattEIntegrator:
 
                 result = LattEIntegrator._read_output_file(output_path)
 
-        if not result:
+        if result is None:
             raise RuntimeError("Unhandled error while executing LattE integrale.")
+
         return result
 
     def integrate_batch(
@@ -144,21 +148,28 @@ class LattEIntegrator:
     @staticmethod
     def _read_output_file(path: Path) -> float:
         with path.open("r") as f:
+            error = None
             lines = f.readlines()
+            txt_block = "\n".join(lines)
+            if "The number of lattice points is 1." in txt_block:
+                return 0.0
+            elif "Empty polytope or unbounded polytope!" in txt_block:
+                error = "Empty or unbounded polytope"
+            elif "Given polyhedron is unbounded!" in txt_block:
+                error = "Unbounded polytope"
+
+            if error is not None:
+                raise RuntimeError(error + txt_block)
+                
             for line in lines:
                 # Result in the "Answer" line may be written in fraction form
                 if "Decimal" in line:
                     # print("Res: {}".format(line))
                     return float(line.partition(": ")[-1].strip())
 
-            txt_block = "\n".join(lines)
-            if "The number of lattice points is 1." in txt_block:
-                return 0
-            elif "Empty polytope or unbounded polytope!" in txt_block:
-                error = "Empty or unbounded polytope"
-            elif "Given polyhedron is unbounded!" in txt_block:
-                error = "Unbounded polytope"
-            else:
-                error = "LattE reached an unexpected state (memory limit?)"
-
+            error = "LattE reached an unexpected state (memory limit?)"
             raise RuntimeError(error + txt_block)
+
+        error = f"Couldn't read: {path}"
+        print(error)
+        raise RuntimeError(error)

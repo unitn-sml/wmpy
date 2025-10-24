@@ -12,6 +12,7 @@ class Polytope:
 
     Attributes:
         inequalities: list of wmpy.core.Inequality
+        equalities: list of wmpy.core.Equality
         N: the number of variables
     """
 
@@ -28,7 +29,17 @@ class Polytope:
            variables: the continuous integration domain
            env: the pysmt environment
         """
-        self.inequalities = [Inequality(e, variables, env) for e in expressions]
+
+        self.inequalities : Inequality = []
+        self.equalities : Equality = []
+        for expr in expressions:
+            if expr.is_le() or expr.is_lt():                
+                self.inequalities.append(Inequality(expr, variables, env))
+            elif expr.is_equals():
+                self.equalities.append(Equality(expr, variables, env))
+            else:
+                raise ValueError(f"Can't parse {expr}, not an (in)equality.")
+
         self.N = len(variables)
         self.mgr = env.formula_manager
 
@@ -44,9 +55,10 @@ class Polytope:
         Note: information on the strictness of each inequality is discarded.
 
         Returns:
-            Two numpy arrays A, b encoding the polytope
+            Four numpy arrays Ain, bin, Aeq, beq encoding the polytope
 
-              A x {<=/<} b
+              Ain x {<=/<} bin
+              Aeq x = beq
         """
         A, b = [], []
         const_key = tuple(0 for _ in range(self.N))
