@@ -55,7 +55,7 @@ def test_polytope_conversion(Ab):
         inequalities.append(relsmt(Asmt, bsmt))
 
     polytope = Polytope(inequalities, vx, env=env)
-    Aconv, bconv, sconv, _, _ = polytope.to_numpy()
+    Aconv, bconv, sconv = polytope.to_numpy()
     assert (Aconv == A).all(), f"numpy conversion error\nA:\n{A}\nA':\n{Aconv}"
     assert (bconv == b).all(), f"numpy conversion error\nb:\n{b}\nb':\n{bconv}"
     assert (
