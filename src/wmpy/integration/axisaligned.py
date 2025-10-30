@@ -10,15 +10,9 @@ if TYPE_CHECKING:
 
 
 class AxisAlignedWrapper:
-    """This class implements an integration wrapper for efficiently handling the following special case:
-    - the polytope is axis-aligned
-    - the integrand is constant
-
-    possibly computing the integral in linear time.
+    """This class implements an integration wrapper for efficiently handling axis-aligned integration bounds.
 
     The enclosed integrator is called whenever the problem doesn't fall into this subcase.
-
-    TODO: fix inconsistencies with the returned type.
     """
 
     def __init__(self, integrator: "Integrator"):
@@ -32,7 +26,7 @@ class AxisAlignedWrapper:
     def integrate(self, polytope: Polytope, polynomial: Polynomial) -> float:
         """Computes a convex integral.
 
-        If the integrand is a constant and the integration bounds are all axis-aligned, the integral is computed in linear time.
+        If the integration bounds are axis-aligned, the integral is computed in closed form.
 
         Args:
             polytope: convex integration bounds (a Polytope)
@@ -41,11 +35,20 @@ class AxisAlignedWrapper:
         Returns:
             The result of the integration as a non-negative scalar value.
         """
-        w = AxisAlignedWrapper._constant_integrand(polynomial)
-        if w is not None:
-            vol = AxisAlignedWrapper._axis_aligned_volume(polytope)
-            if vol is not None:
-                return w * vol
+        intervals = AxisAlignedWrapper._axis_aligned_bounds(polytope)
+        if intervals is not None:
+            cumulative_integral = 0.0
+            for exponents, coefficient in polynomial.monomials.items():
+                monomial_integral = coefficient
+                for i in range(polytope.N):
+                    li, ui = intervals[i]
+                    expi = exponents[i] + 1
+                    if expi != 0:
+                        monomial_integral *= (ui**expi - li**expi) / expi
+
+                cumulative_integral += monomial_integral
+
+            return cumulative_integral
 
         return self.integrator.integrate(polytope, polynomial)
 
@@ -67,14 +70,7 @@ class AxisAlignedWrapper:
         return np.array(volumes)
 
     @staticmethod
-    def _constant_integrand(polynomial: Polynomial) -> Optional[float]:
-        if polynomial.degree == 0:
-            return list(polynomial.monomials.values())[0]
-        else:
-            return None
-
-    @staticmethod
-    def _axis_aligned_volume(polytope: Polytope) -> Optional[float]:
+    def _axis_aligned_bounds(polytope: Polytope) -> Optional[np.ndarray]:
 
         def parse_bound(inequality: Inequality) -> Optional[tuple[int, list[float]]]:
             monos = inequality.polynomial.monomials
@@ -108,7 +104,6 @@ class AxisAlignedWrapper:
 
         barray = np.array(bounds)
         if (barray[:, 0] > -np.inf).all() and (barray[:, 1] < np.inf).all():
-            volume = float(np.prod(np.abs(np.subtract(barray[:, 0], barray[:, 1]))))
-            return volume
+            return barray
         else:
             return None

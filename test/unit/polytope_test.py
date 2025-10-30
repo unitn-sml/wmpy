@@ -47,17 +47,20 @@ def test_polytope_conversion(Ab):
     M, N = A.shape
     vx = [smt.Symbol(f"x{i}", smt.REAL) for i in range(N)]
     inequalities = []
+    equalities = []
     for i in range(M):
-        ineq = smt.LE(
-            smt.Plus([smt.Times(smt.Real(float(A[i][j])), vx[j]) for j in range(N)]),
-            smt.Real(float(b[i])),
-        )
-        inequalities.append(ineq)
+        Asmt = smt.Plus([smt.Times(smt.Real(float(A[i][j])), vx[j]) for j in range(N)])
+        bsmt = smt.Real(float(b[i]))
+        relsmt = smt.LE if i % 2 == 0 else smt.LT
+        inequalities.append(relsmt(Asmt, bsmt))
 
     polytope = Polytope(inequalities, vx, env=env)
-    Aconv, bconv = polytope.to_numpy()
+    Aconv, bconv, sconv, _, _ = polytope.to_numpy()
     assert (Aconv == A).all(), f"numpy conversion error\nA:\n{A}\nA':\n{Aconv}"
     assert (bconv == b).all(), f"numpy conversion error\nb:\n{b}\nb':\n{bconv}"
+    assert (
+        sconv == np.array([i % 2 for i in range(M)])
+    ).all(), f"numpy conversion error\ns:\n{sconv}\nstrictness vector non-matching"
 
     f = smt.And(*inequalities)
     fconv = polytope.to_pysmt()

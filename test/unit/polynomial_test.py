@@ -189,7 +189,7 @@ def test_polynomial_as_monomial(f_const, exp_const):
         assert equivalent_expressions(expression, polynomial.to_pysmt())
         coefficient = polynomial.monomials.get((exp_const,), 0)
         assert same_numerical_constant(coefficient, f_const)
-        assert polynomial.degree == exp_const
+        assert polynomial.degree == (exp_const * int(f_const != 0))
     except OverflowError:
         pass
 
@@ -204,7 +204,7 @@ def test_polynomial_as_monomial_and_constants(f_vec3, exp_const):
     )
     polynomial = Polynomial(expression, [x], env=env)
     assert equivalent_expressions(expression, polynomial.to_pysmt())
-    assert polynomial.degree == exp_const
+    assert polynomial.degree == (exp_const * int(c2 != 0))
 
 
 def test_polynomial_with_multiple_monomials(f_vec3, exp_vec2):
@@ -227,7 +227,7 @@ def test_polynomial_with_multiple_monomials(f_vec3, exp_vec2):
         polynomial.monomials.get((0, 0), 0),
         c3 + int(exp1 == 0) * c1 + int(exp2 == 0) * c2,
     )
-    assert polynomial.degree == max(exp1, exp2)
+    assert polynomial.degree == max(exp1 * int(c1 != 0), exp2 * int(c2 != 0))
 
 
 def test_polynomial_monomials_same_variable(f_vec3, exp_vec3):
@@ -261,4 +261,7 @@ def test_polynomial_monomials_same_variable(f_vec3, exp_vec3):
         c3 + int(exp1 == 0) * c1 + int(exp2 == 0) * c2 + 1 * int(exp3 == 0),
     )
 
-    assert polynomial.degree == max(exp1, exp2, exp3)
+    if exp1 == exp3:
+        assert polynomial.degree == max(exp1 * int(c1 + 1 != 0), exp2 * int(c2 != 0))
+    else:
+        assert polynomial.degree == max(exp1 * int(c1 != 0), exp2 * int(c2 != 0), exp3)

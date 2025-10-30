@@ -12,7 +12,6 @@ class Polytope:
 
     Attributes:
         inequalities: list of wmpy.core.Inequality
-        equalities: list of wmpy.core.Equality
         N: the number of variables
     """
 
@@ -30,13 +29,10 @@ class Polytope:
            env: the pysmt environment
         """
 
-        self.inequalities : Inequality = []
-        self.equalities : Equality = []
+        self.inequalities: list[Inequality] = []
         for expr in expressions:
-            if expr.is_le() or expr.is_lt():                
+            if expr.is_le() or expr.is_lt():
                 self.inequalities.append(Inequality(expr, variables, env))
-            elif expr.is_equals():
-                self.equalities.append(Equality(expr, variables, env))
             else:
                 raise ValueError(f"Can't parse {expr}, not an (in)equality.")
 
@@ -45,29 +41,29 @@ class Polytope:
 
     def to_pysmt(self) -> FNode:
         """Returns a pysmt formula (FNode) encoding the polytope."""
-        if not self.inequalities:
-            return self.mgr.Bool(True)
-        return self.mgr.And(*map(lambda x: x.to_pysmt(), self.inequalities))
+        clauses = [ineq.to_pysmt() for ineq in self.inequalities]
+        return self.mgr.And(*clauses)
 
-    def to_numpy(self) -> tuple[np.ndarray, np.ndarray]:
-        """Converts the polytope to a pair of numpy arrays.
-
-        Note: information on the strictness of each inequality is discarded.
+    def to_numpy(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Converts the polytope to a tuple of numpy arrays.
 
         Returns:
-            Four numpy arrays Ain, bin, Aeq, beq encoding the polytope
+            Three numpy arrays A, B, S encoding the polytope
 
-              Ain x {<=/<} bin
-              Aeq x = beq
+              A x {<=/<} B
+
+            S is a {0,1} array indicating which rows/entries in A, B correspond to strict inequalities.
         """
-        A, b = [], []
-        const_key = tuple(0 for _ in range(self.N))
-        key = lambda i: tuple(1 if j == i else 0 for j in range(self.N))
+        A, B, S = [], [], []
         for ineq in self.inequalities:
-            b.append(-ineq.polynomial.monomials.get(const_key, 0))
-            A.append([ineq.polynomial.monomials.get(key(i), 0) for i in range(self.N)])
+            Ab = ineq.to_numpy()
+            A.append(Ab[0])
+            B.append(Ab[1])
+            S.append(1 if ineq.strict else 0)
 
-        return np.array(A), np.array(b)
+        return np.array(A), np.array(B), np.array(S)
 
     def __str__(self) -> str:
         return "\n".join(["[" + str(b) + "]" for b in self.inequalities])

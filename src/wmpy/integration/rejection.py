@@ -39,16 +39,22 @@ class RejectionIntegrator:
         if integrand.is_zero:
             return 0.0
 
-        A, b = polytope.to_numpy()
+        A, B, S = polytope.to_numpy()
 
         # compute the enclosing axis-aligned bounding box (lower, upper)
         lowerl, upperl = [], []
         for i in range(polytope.N):
             cost = np.array([1 if j == i else 0 for j in range(polytope.N)])
-            res = linprog(cost, A_ub=A, b_ub=b, method="highs-ds", bounds=(None, None))
+            res = linprog(
+                cost,
+                A_ub=A,
+                b_ub=B,
+                method="highs-ds",
+                bounds=(None, None),
+            )
             assert res.x is not None
             lowerl.append(res.x[i])
-            res = linprog(-cost, A_ub=A, b_ub=b, method="highs-ds", bounds=(None, None))
+            res = linprog(-cost, A_ub=A, b_ub=B, method="highs-ds", bounds=(None, None))
             assert res.x is not None
             upperl.append(res.x[i])
 
@@ -58,7 +64,12 @@ class RejectionIntegrator:
         sample = (
             np.random.random((self.n_samples, polytope.N)) * (upper - lower) + lower
         )
-        valid_sample = sample[np.all(sample @ A.T < b, axis=1)]
+        valid_sample = sample[
+            np.all(
+                (sample @ A[S].T < B[S]) & (sample @ A[~S].T <= B[~S]),
+                axis=1,
+            )
+        ]
 
         if len(valid_sample) > 0:
             # return the Monte Carlo estimate of the integral

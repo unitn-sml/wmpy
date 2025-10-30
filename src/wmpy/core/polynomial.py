@@ -120,7 +120,7 @@ class PolynomialParser(DagWalker):
     def walk_real_constant(self, formula: FNode, **kwargs: Any) -> Monomials:
         exp_key = tuple(0 for _ in range(len(self.variables)))
         coeff = formula.constant_value()
-        return {exp_key: coeff}
+        return {exp_key: coeff} if coeff != 0 else self._zero
 
     def walk_symbol(self, formula: FNode, **kwargs: Any) -> Monomials:
         assert formula.is_symbol(REAL)
@@ -175,21 +175,25 @@ class PolynomialParser(DagWalker):
                 result[exp_key] = coeff
             else:
                 result[exp_key] += coeff
+                if result[exp_key] == 0:
+                    result.pop(exp_key)
+
         return result
 
-    @staticmethod
-    def _multiply_polys(mono_first: Monomials, mono_second: Monomials) -> Monomials:
+    def _multiply_polys(
+        self, mono_first: Monomials, mono_second: Monomials
+    ) -> Monomials:
         """Multiplies two polynomials represented as monomial dictionaries."""
-        result = {}
-        n = (
-            len(next(iter(mono_first.keys())))
-            if mono_first
-            else len(next(iter(mono_second.keys())))
-        )
 
+        if mono_first == self._zero or mono_second == self._zero:
+            return self._zero
+
+        result = {}
         for exp_key1, coeff1 in mono_first.items():
             for exp_key2, coeff2 in mono_second.items():
-                exp_key_new = tuple(exp_key1[i] + exp_key2[i] for i in range(n))
+                exp_key_new = tuple(
+                    exp_key1[i] + exp_key2[i] for i in range(len(self.variables))
+                )
                 coeff_new = coeff1 * coeff2
 
                 if exp_key_new not in result:
@@ -199,18 +203,24 @@ class PolynomialParser(DagWalker):
 
         return result
 
-    @classmethod
-    def _expand_power(cls, base_poly: Monomials, exp_val: int) -> Monomials:
+    def _expand_power(self, base_poly: Monomials, exp_val: int) -> Monomials:
         """Expands (polynomial)^n by repeated multiplication."""
         if exp_val == 0:
-            n = len(next(iter(base_poly.keys())))
-            return {tuple(0 for _ in range(n)): 1}
+            return self._one
 
         result = base_poly.copy()
         for _ in range(exp_val - 1):
-            result = cls._multiply_polys(result, base_poly)
+            result = self._multiply_polys(result, base_poly)
 
         return result
+
+    @property
+    def _one(self) -> Monomials:
+        return {tuple(0 for _ in range(len(self.variables))): 1}
+
+    @property
+    def _zero(self) -> Monomials:
+        return dict()
 
 
 def _is_integral(v: SupportsInt) -> bool:

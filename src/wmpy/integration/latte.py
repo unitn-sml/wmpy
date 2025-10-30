@@ -131,9 +131,13 @@ class LattEIntegrator:
 
         This requires converting all the coefficients to integers.
         """
-        A, b = polytope.to_numpy()
-        bA = np.concatenate((b.reshape(-1, 1), A), axis=1)
 
+        # this part converts the coefficient to integers (a LattE requirement)
+        A, B, _ = polytope.to_numpy()
+        n_vars = A.shape[1]
+        n_in = B.shape[0]
+
+        bA = np.concatenate((B.reshape(-1, 1), A), axis=1)
         f_den = np.vectorize(lambda x: Fraction(x).denominator)
         f_lcmm = lambda vec: reduce(np.lcm, vec)
 
@@ -141,9 +145,10 @@ class LattEIntegrator:
         bA_int = (bA * mult[:, None]).astype(int)
         bAm_int = np.concatenate((bA_int[:, 0].reshape(-1, 1), -bA_int[:, 1:]), axis=1)
 
+        content = f"{n_in} {n_vars + 1}\n"
+        content += "\n".join([" ".join(map(str, row)) for row in bAm_int])
         with path.open("w") as f:
-            f.write(f"{bA.shape[0]} {bA.shape[1]}\n")
-            f.write("\n".join([" ".join(map(str, row)) for row in bAm_int]))
+            f.write(content)
 
     @staticmethod
     def _read_output_file(path: Path) -> float:
@@ -160,7 +165,7 @@ class LattEIntegrator:
 
             if error is not None:
                 raise RuntimeError(error + txt_block)
-                
+
             for line in lines:
                 # Result in the "Answer" line may be written in fraction form
                 if "Decimal" in line:
@@ -169,7 +174,3 @@ class LattEIntegrator:
 
             error = "LattE reached an unexpected state (memory limit?)"
             raise RuntimeError(error + txt_block)
-
-        error = f"Couldn't read: {path}"
-        print(error)
-        raise RuntimeError(error)
