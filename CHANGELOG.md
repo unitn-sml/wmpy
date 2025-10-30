@@ -3,35 +3,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased / TODO]
 
 ### Added
 
 - Bound computation functionalities
+- Optimization functionalities
+- Sampling functionalities
+- redundant inequalities removal in Polytope
+- Equalities support
 
 ### Fixed
 
+- ...
+
 ### Changed
 
-- Polytope has now a method for removing redundant inequalities
-- Polytope.to_numpy() now returns an additional numpy array with strictness information
+- ...
 
 ### Removed
+
+- ...
+
 
 ## [0.1.1]
 
 ### Added
 
-- Bound computation functionalities
+- `Inequality.to_numpy()` 
 
 ### Fixed
 
+- Multiple bug fixes related to integration polynomial manipulations
+- Multiple fixes in the unit tests
+
 ### Changed
 
-- Polytope has now a method for removing redundant inequalities
-- Polytope.to_numpy() now returns an additional numpy array with strictness information
-
-### Removed
+- `Polytope.to_numpy()` now returns an additional numpy array with strictness information
+- `AxisAlignedWrapper` now works with arbitrary polynomial integrands
 
 
 
@@ -42,6 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First pre-release version.
 
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...HEAD
-[0.1.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.1.0
+[unreleased]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...HEAD
+[0.1.1]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/unitn-sml/wmpy/releases/tag/v0.1.0
