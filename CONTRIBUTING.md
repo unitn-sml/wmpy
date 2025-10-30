@@ -35,7 +35,7 @@ Before pushing to remote
 
 - Fix any resulting error
 
-- Make sure to reformat the source code: `uv run black`
+- Make sure to reformat the source code: `uv run black .`
 
 
 Conventions
