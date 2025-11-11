@@ -47,7 +47,6 @@ def test_polytope_conversion(Ab):
     M, N = A.shape
     vx = [smt.Symbol(f"x{i}", smt.REAL) for i in range(N)]
     inequalities = []
-    equalities = []
     for i in range(M):
         Asmt = smt.Plus([smt.Times(smt.Real(float(A[i][j])), vx[j]) for j in range(N)])
         bsmt = smt.Real(float(b[i]))
@@ -67,3 +66,32 @@ def test_polytope_conversion(Ab):
     assert not smt.is_sat(
         smt.Not(smt.Iff(f, fconv))
     ), "pysmt conversion error\nf:\n{smt.serialize(f)}\nf':{smt.serialize(fconv)}"
+
+
+def test_polytope_outer_box():
+    env = smt.get_env()
+    x, y = smt.Symbol("x", smt.REAL), smt.Symbol("y", smt.REAL)
+    box = [
+        smt.LE(smt.Real(0), x),
+        smt.LE(x, smt.Real(1)),
+        smt.LE(smt.Real(0), y),
+        smt.LE(y, smt.Real(1)),
+    ]
+
+    obx, oby = Polytope(box, [x, y], env=env).compute_outer_box()
+    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+
+    h1 = smt.LE(smt.Plus(x, y), smt.Real(1))
+    obx, oby = Polytope(box + [h1], [x, y], env=env).compute_outer_box()
+    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+
+    h2 = smt.LE(y, x)
+    obx, oby = Polytope(box + [h2], [x, y], env=env).compute_outer_box()
+    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+
+    obx, oby = Polytope(box + [h1, h2], [x, y], env=env).compute_outer_box()
+    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1 / 2])).all()
+
+    h3 = smt.LE(smt.Real(1 / 2), x)
+    obx, oby = Polytope(box + [h1, h2, h3], [x, y], env=env).compute_outer_box()
+    assert (obx == np.array([1 / 2, 0])).all() and (oby == np.array([1, 1 / 2])).all()
