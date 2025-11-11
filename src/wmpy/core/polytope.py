@@ -1,8 +1,9 @@
-from typing import Collection
+from typing import Collection, Optional
 
 import numpy as np
 from pysmt.environment import Environment
 from pysmt.fnode import FNode
+from scipy.optimize import linprog
 
 from wmpy.core.inequality import Inequality
 
@@ -13,6 +14,8 @@ class Polytope:
     Attributes:
         inequalities: list of wmpy.core.Inequality
         N: the number of variables
+        env: the pysmt environment
+        outer_box: the axis-aligned box (optional)
     """
 
     def __init__(
@@ -37,12 +40,45 @@ class Polytope:
                 raise ValueError(f"Can't parse {expr}, not an (in)equality.")
 
         self.N = len(variables)
-        self.mgr = env.formula_manager
+        self.env = env
+        self.outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
 
     def to_pysmt(self) -> FNode:
         """Returns a pysmt formula (FNode) encoding the polytope."""
         clauses = [ineq.to_pysmt() for ineq in self.inequalities]
-        return self.mgr.And(*clauses)
+        return self.env.formula_manager.And(*clauses)
+
+    def compute_outer_box(self) -> tuple[np.ndarray, np.ndarray]:
+        """Returns the tightest axis-aligned hyperrectangle fully
+        enclosing the polytope by making 2N calls to an LP solver.
+
+        The result is stored for future uses.
+
+        Returns:
+            Two numpy arrays corresponding to the extremes of the box.
+        """
+        if self.outer_box is not None:
+            return self.outer_box
+
+        A, B, _ = self.to_numpy()
+        lowerl, upperl = [], []
+        for i in range(self.N):
+            cost = np.array([1 if j == i else 0 for j in range(self.N)])
+            res = linprog(
+                cost,
+                A_ub=A,
+                b_ub=B,
+                method="highs-ds",
+                bounds=(None, None),
+            )
+            assert res.x is not None
+            lowerl.append(res.x[i])
+            res = linprog(-cost, A_ub=A, b_ub=B, method="highs-ds", bounds=(None, None))
+            assert res.x is not None
+            upperl.append(res.x[i])
+
+        self.outer_box = (np.array(lowerl), np.array(upperl))
+        return self.outer_box
 
     def to_numpy(
         self,

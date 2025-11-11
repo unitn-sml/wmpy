@@ -39,7 +39,7 @@ class Polynomial:
             self.monomials.pop(const_key)
         self.variables = variables
         self.ordered_keys = sorted(self.monomials.keys())
-        self.mgr = env.formula_manager
+        self.env = env
 
     @property
     def degree(self) -> int:
@@ -68,21 +68,23 @@ class Polynomial:
 
     def to_pysmt(self) -> FNode:
         """Returns the polynomial in pysmt format."""
+        mgr = self.env.formula_manager
+
         if len(self.monomials) == 0:
-            return self.mgr.Real(0)
+            return mgr.Real(0)
 
         pysmt_monos = []
         for key in self.ordered_keys:
-            factors = [self.mgr.Real(self.monomials[key])]
+            factors = [mgr.Real(self.monomials[key])]
             for i, var in enumerate(self.variables):
                 if key[i] > 1 or key[i] < 0:
-                    factors.append(self.mgr.Pow(var, self.mgr.Real(key[i])))
+                    factors.append(mgr.Pow(var, mgr.Real(key[i])))
                 elif key[i] == 1:
                     factors.append(var)
 
-            pysmt_monos.append(self.mgr.Times(*factors))
+            pysmt_monos.append(mgr.Times(*factors))
 
-        return self.mgr.Plus(*pysmt_monos)
+        return mgr.Plus(*pysmt_monos)
 
     def __len__(self) -> int:
         return len(self.monomials)
