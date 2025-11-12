@@ -8,11 +8,7 @@ from wmpy.optimization import ScipyOptimizer
 
 
 class RejectionSampler:
-    """This class implements rejection sampling from a polynomial
-    distribution with convex support.
-    """
-
-    DEF_N_SAMPLES = int(10e3)
+    """This class implements rejection sampling from a polynomial distribution with convex support."""
 
     def __init__(
         self, polytope: Polytope, polynomial: Polynomial, seed: Optional[int] = None
