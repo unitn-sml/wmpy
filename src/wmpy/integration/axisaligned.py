@@ -40,7 +40,7 @@ class AxisAlignedWrapper:
             cumulative_integral = 0.0
             for exponents, coefficient in polynomial.monomials.items():
                 monomial_integral = coefficient
-                for i in range(polytope.N):
+                for i in range(len(polytope.variables)):
                     li, ui = intervals[i]
                     expi = exponents[i] + 1
                     if expi != 0:
@@ -89,7 +89,7 @@ class AxisAlignedWrapper:
             else:
                 return None
 
-        bounds = [[-np.inf, np.inf] for _ in range(polytope.N)]
+        bounds = [[-np.inf, np.inf] for _ in range(len(polytope.variables))]
 
         for ineq in polytope.inequalities:
             nvb = parse_bound(ineq)

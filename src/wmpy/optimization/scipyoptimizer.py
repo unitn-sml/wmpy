@@ -1,13 +1,15 @@
 import numpy as np
 from scipy.optimize import linprog
+from typing import TYPE_CHECKING
 
-from wmpy.core import Polynomial, Polytope
+if TYPE_CHECKING:
+    from wmpy.core import Polynomial, Polytope
 
 
 class ScipyOptimizer:
 
     def optimize(
-        self, polytope: Polytope, polynomial: Polynomial, maximize: bool = True
+        self, polytope: "Polytope", polynomial: "Polynomial", maximize: bool = True
     ) -> np.ndarray:
         """Solves the constrained optimization problem where:
 
@@ -27,11 +29,12 @@ class ScipyOptimizer:
 
         obj = polynomial.to_numpy()
         A, B, S = polytope.to_numpy()
+        N = len(polytope.variables)
         if polynomial.degree <= 1:  # solve LP
-            coefficients = np.zeros(polytope.N)
+            coefficients = np.zeros(N)
 
-            for i in range(polytope.N):
-                ki = tuple(1 if j == i else 0 for j in range(polytope.N))
+            for i in range(N):
+                ki = tuple(1 if j == i else 0 for j in range(N))
                 coefficients[i] = polynomial.monomials.get(ki, 0)
 
             cost = -coefficients if maximize else coefficients

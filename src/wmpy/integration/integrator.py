@@ -6,8 +6,7 @@ from wmpy.core import Polytope, Polynomial
 
 
 class Integrator(Protocol):
-    """
-    Protocol for classes that can integrate polynomials over polytopes.
+    """Protocol for classes that can integrate polynomials over polytopes.
 
     Classes implementing this protocol must provide methods for both
     single integration and batch integration operations.
