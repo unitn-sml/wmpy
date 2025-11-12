@@ -1,13 +1,16 @@
 from typing import Collection, Optional
 
 import numpy as np
-from scipy.optimize import linprog
+import pysmt.shortcuts as smt
 
 from wmpy.core import Polynomial, Polytope
+from wmpy.sampling import RejectionSampler
 
 
 class RejectionIntegrator:
-    """This class implements an integrator based on rejection sampling."""
+    """This class implements an integrator based on rejection sampling.
+    The integral is approximated with its Monte Carlo (MC) estimate.
+    """
 
     DEF_N_SAMPLES = int(10e3)
 
@@ -15,22 +18,24 @@ class RejectionIntegrator:
         """Default constructor.
 
         Args:
-            n_samples: sample size (default: 10e3)
+            n_samples: sample size of the MC estimate
             seed: the seed number (optional)
         """
-
         self.n_samples = (
             RejectionIntegrator.DEF_N_SAMPLES if n_samples is None else n_samples
         )
         if seed is not None:
             np.random.seed(seed)
 
-    def integrate(self, polytope: Polytope, integrand: Polynomial) -> float:
+    def integrate(
+        self, polytope: Polytope, integrand: Polynomial, max_iterations: int = 1
+    ) -> float:
         """Computes a convex integral.
 
         Args:
             polytope: convex integration bounds
             polynomial: the integrand
+            max_iterations: maximum number of rejection sampling attempts (default: 1)
 
         Returns:
             The result of the integration as a non-negative scalar value.
@@ -39,41 +44,14 @@ class RejectionIntegrator:
         if integrand.is_zero:
             return 0.0
 
-        A, B, S = polytope.to_numpy()
-
-        # compute the enclosing axis-aligned bounding box (lower, upper)
-        lowerl, upperl = [], []
-        for i in range(polytope.N):
-            cost = np.array([1 if j == i else 0 for j in range(polytope.N)])
-            res = linprog(
-                cost,
-                A_ub=A,
-                b_ub=B,
-                method="highs-ds",
-                bounds=(None, None),
-            )
-            assert res.x is not None
-            lowerl.append(res.x[i])
-            res = linprog(-cost, A_ub=A, b_ub=B, method="highs-ds", bounds=(None, None))
-            assert res.x is not None
-            upperl.append(res.x[i])
-
-        lower, upper = np.array(lowerl), np.array(upperl)
-
-        # sample uniformly from the AA-BB and reject the samples outside the polytope
-        sample = (
-            np.random.random((self.n_samples, polytope.N)) * (upper - lower) + lower
-        )
-        valid_sample = sample[
-            np.all(
-                (sample @ A[S].T < B[S]) & (sample @ A[~S].T <= B[~S]),
-                axis=1,
-            )
-        ]
+        uniform_weight = Polynomial(smt.Real(1), integrand.variables, integrand.env)
+        lower, upper = polytope.compute_outer_box()
+        sampler = RejectionSampler(polytope, uniform_weight)
+        valid_sample = sampler.sample(self.n_samples, max_iterations=max_iterations)
 
         if len(valid_sample) > 0:
             # return the Monte Carlo estimate of the integral
-            volume = (len(valid_sample) / len(sample)) * np.prod(upper - lower)
+            volume = (len(valid_sample) / self.n_samples) * np.prod(upper - lower)
             result = float(np.mean(integrand.to_numpy()(valid_sample)) * volume)
         else:
             result = 0.0
