@@ -20,7 +20,6 @@ class WMISolver:
 
     """
 
-    DEF_ENUMERATOR = TotalEnumerator
     DEF_INTEGRATOR = RejectionIntegrator
 
     def __init__(
