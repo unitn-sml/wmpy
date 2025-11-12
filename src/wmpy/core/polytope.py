@@ -1,11 +1,13 @@
 from typing import Collection, Optional
-
 import numpy as np
 from pysmt.environment import Environment
 from pysmt.fnode import FNode
-from scipy.optimize import linprog
 
+from wmpy.core import Polynomial
 from wmpy.core.inequality import Inequality
+
+# from wmpy.optimization import ScipyOptimizer
+import wmpy.optimization as opt
 
 
 class Polytope:
@@ -39,7 +41,7 @@ class Polytope:
             else:
                 raise ValueError(f"Can't parse {expr}, not an (in)equality.")
 
-        self.N = len(variables)
+        self.variables = variables
         self.env = env
         self.outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
 
@@ -60,22 +62,14 @@ class Polytope:
         if self.outer_box is not None:
             return self.outer_box
 
-        A, B, _ = self.to_numpy()
         lowerl, upperl = [], []
-        for i in range(self.N):
-            cost = np.array([1 if j == i else 0 for j in range(self.N)])
-            res = linprog(
-                cost,
-                A_ub=A,
-                b_ub=B,
-                method="highs-ds",
-                bounds=(None, None),
-            )
-            assert res.x is not None
-            lowerl.append(res.x[i])
-            res = linprog(-cost, A_ub=A, b_ub=B, method="highs-ds", bounds=(None, None))
-            assert res.x is not None
-            upperl.append(res.x[i])
+        optimizer = opt.ScipyOptimizer()
+        for i, var in enumerate(self.variables):
+            cost = Polynomial(var, self.variables, self.env)
+            min_var = optimizer.optimize(self, cost, maximize=False)[i]
+            max_var = optimizer.optimize(self, cost, maximize=True)[i]
+            lowerl.append(min_var)
+            upperl.append(max_var)
 
         self.outer_box = (np.array(lowerl), np.array(upperl))
         return self.outer_box
