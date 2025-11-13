@@ -34,4 +34,4 @@ integrator = LattEIntegrator()
 wmi_solver = WMISolver(enumerator, integrator)
 
 
-print(f"WMI of {serialize(w)} is:", wmi_solver.compute(Bool(True), {x})["wmi"])
+print(f"Z is:", wmi_solver.compute(Bool(True), {x})["wmi"])
