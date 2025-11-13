@@ -32,8 +32,11 @@ polynomial = Polynomial(expression, domain, env=get_env())
 
 #### NUMPY CONVERSIONS
 
-# a poltope can be converted into the numpy arrays A x </<= b (strictness information is discarded)
-A, b = polytope.to_numpy()
+# a poltope can be converted into the numpy arrays:
+A, b, s = polytope.to_numpy()
+
+# where A x s < b s
+# and   A x (1-s) <= b (1-s)
 
 print(A.astype(float))
 # >>> [[-1.  0.]
