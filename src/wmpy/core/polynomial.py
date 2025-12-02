@@ -20,7 +20,7 @@ class Polynomial:
 
     Attributes:
         monomials: the monomial dictionary
-        variables: the continuous integration domain
+        variables: list of pysmt real variables
         ordered_keys: sorted list of monomial keys
         mgr: the pysmt formula manager
     """
@@ -30,7 +30,7 @@ class Polynomial:
 
         Args:
             expr: the polynomial in pysmt format
-            variables: the continuous integration domain
+            variables: list of pysmt real variables
             env: the pysmt environment
         """
         self.monomials = PolynomialParser(variables).parse(expr)

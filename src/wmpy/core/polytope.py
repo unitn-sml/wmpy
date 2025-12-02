@@ -15,7 +15,7 @@ class Polytope:
 
     Attributes:
         inequalities: list of wmpy.core.Inequality
-        N: the number of variables
+        variables: list of pysmt real variables
         env: the pysmt environment
         outer_box: the axis-aligned box (optional)
     """
@@ -30,7 +30,7 @@ class Polytope:
 
         Args:
            expressions: list of linear inequalities in pysmt format
-           variables: the continuous integration domain
+           variables: list of pysmt real variables
            env: the pysmt environment
         """
 

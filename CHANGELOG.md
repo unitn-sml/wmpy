@@ -3,14 +3,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased / TODO]
+## [unreleased]
 
 ### Added
 
 - Bound computation functionalities
-- Optimization functionalities
-- Sampling functionalities
-- redundant inequalities removal in Polytope
+- Extra optimization functionalities
+- Extra sampling functionalities
+- Redundant inequalities removal in Polytope
 - Equalities support
 
 ### Fixed
@@ -24,6 +24,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - ...
+
+
+## [0.2.0] - 2025-12-02
+
+### Added
+
+- `sampling` submodule for convex sampling via `RejectionSampler`
+- `optimization` submodule for convex optimization via `ScipyOptimizer`
+- `Polytope.compute_outer_box()` functionality
+- nonconvex `solvers.WMSampling` sampler
+
+### Changed
+
+- `RejectionIntegrator` is now based on the new `sampling.RejectionSampler`, extra optional integration parameter.
+- `Polynomial` and `Polytope` now store the `pysmt` environment rather than the `FormulaManager`
+- `Polytope` stores the list of pysmt variables rather than its length
+
 
 
 ## [0.1.1] - 2025-10-30
@@ -43,7 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AxisAlignedWrapper` now works with arbitrary polynomial integrands
 
 
-
 ## [0.1.0] - 2025-09-25
 
 ### Added
@@ -52,5 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [unreleased]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.2.0
 [0.1.1]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/unitn-sml/wmpy/releases/tag/v0.1.0
