@@ -39,8 +39,7 @@ class RejectionSampler:
         The first rejection phase discards points that are outside the polytope.
         Then, the second rejection phase ensures that samples are drawn from the target polynomial distribution.
 
-        The procedure tries to sample `n_samples` points up to
-        `max_iterations`, returning M points.
+        The procedure tries to sample `n_samples` points up to `max_iterations`, returning M <= `n_samples` points.
 
         Args:
             n_samples: desired sample size
