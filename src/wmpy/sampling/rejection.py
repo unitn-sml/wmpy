@@ -52,7 +52,7 @@ class RejectionSampler:
         N = len(self.polytope.variables)
         result = np.array([]).reshape(-1, N)
         A, B, S = self.polytope.to_numpy()
-        lower, upper = self.polytope.compute_outer_box()
+        lower, upper = self.polytope.outer_box
         it = 0
         while it < max_iterations:
             it += 1

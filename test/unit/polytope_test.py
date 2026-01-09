@@ -68,30 +68,67 @@ def test_polytope_conversion(Ab):
     ), "pysmt conversion error\nf:\n{smt.serialize(f)}\nf':{smt.serialize(fconv)}"
 
 
-def test_polytope_outer_box():
-    env = smt.get_env()
-    x, y = smt.Symbol("x", smt.REAL), smt.Symbol("y", smt.REAL)
-    box = [
-        smt.LE(smt.Real(0), x),
-        smt.LE(x, smt.Real(1)),
-        smt.LE(smt.Real(0), y),
-        smt.LE(y, smt.Real(1)),
-    ]
+env = smt.get_env()
+x, y = smt.Symbol("x", smt.REAL), smt.Symbol("y", smt.REAL)
+box = [
+    smt.LE(smt.Real(0), x),
+    smt.LE(x, smt.Real(1)),
+    smt.LE(smt.Real(0), y),
+    smt.LE(y, smt.Real(1)),
+]
 
-    obx, oby = Polytope(box, [x, y], env=env).compute_outer_box()
-    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+h1 = smt.LE(smt.Plus(x, y), smt.Real(1))
+h2 = smt.LE(y, x)
+h3 = smt.LE(smt.Real(1 / 2), x)
+    
+def test_polytope_outer_box1():
+    lower, upper = Polytope(box, [x, y], env=env).outer_box
+    expl, expu = np.array([0, 0]), np.array([1, 1])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
-    h1 = smt.LE(smt.Plus(x, y), smt.Real(1))
-    obx, oby = Polytope(box + [h1], [x, y], env=env).compute_outer_box()
-    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+def test_polytope_outer_box2():
+    lower, upper = Polytope(box + [h1], [x, y], env=env).outer_box
+    expl, expu = np.array([0, 0]), np.array([1, 1])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
-    h2 = smt.LE(y, x)
-    obx, oby = Polytope(box + [h2], [x, y], env=env).compute_outer_box()
-    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1])).all()
+def test_polytope_outer_box3():
+    lower, upper = Polytope(box + [h2], [x, y], env=env).outer_box
+    expl, expu = np.array([0, 0]), np.array([1, 1])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
-    obx, oby = Polytope(box + [h1, h2], [x, y], env=env).compute_outer_box()
-    assert (obx == np.array([0, 0])).all() and (oby == np.array([1, 1 / 2])).all()
+def test_polytope_outer_box4():
+    lower, upper = Polytope(box + [h1, h2], [x, y], env=env).outer_box
+    expl, expu = np.array([0, 0]), np.array([1, 1 / 2])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
-    h3 = smt.LE(smt.Real(1 / 2), x)
-    obx, oby = Polytope(box + [h1, h2, h3], [x, y], env=env).compute_outer_box()
-    assert (obx == np.array([1 / 2, 0])).all() and (oby == np.array([1, 1 / 2])).all()
+def test_polytope_outer_box5():
+    lower, upper = Polytope(box + [h1, h2, h3], [x, y], env=env).outer_box
+    expl, expu = np.array([1 / 2, 0]), np.array([1, 1 / 2])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
+
+def test_polytope_inner_box1():
+    lower, upper = Polytope(box, [x, y], env=env).inner_box
+    expl, expu = np.array([0, 0]), np.array([1, 1])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
+def test_polytope_inner_box2():
+    lower, upper = Polytope(box + [h1], [x, y], env=env).inner_box
+    expl, expu = np.array([0, 0]), np.array([1/2, 1/2])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
+def test_polytope_inner_box3():
+    lower, upper = Polytope(box + [h2], [x, y], env=env).inner_box
+    expl, expu = np.array([1/2, 0]), np.array([1, 1/2])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
+def test_polytope_inner_box4():
+    lower, upper = Polytope(box + [h1, h2], [x, y], env=env).inner_box
+    expl, expu = np.array([1/4, 0]), np.array([3/4, 1/4])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
+def test_polytope_inner_box5():
+    lower, upper = Polytope(box + [h1, h2, h3], [x, y], env=env).inner_box
+    expl, expu = np.array([1/2, 0]), np.array([3/4, 1/4])
+    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+

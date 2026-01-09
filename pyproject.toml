@@ -16,6 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
+    "cvxpy",
     "networkx",
     "numpy",
     "PySMT>=0.9.7.dev333",

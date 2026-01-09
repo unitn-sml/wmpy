@@ -5,8 +5,6 @@ from pysmt.fnode import FNode
 
 from wmpy.core import Polynomial
 from wmpy.core.inequality import Inequality
-
-# from wmpy.optimization import ScipyOptimizer
 import wmpy.optimization as opt
 
 
@@ -17,7 +15,8 @@ class Polytope:
         inequalities: list of wmpy.core.Inequality
         variables: list of pysmt real variables
         env: the pysmt environment
-        outer_box: the axis-aligned box (optional)
+        inner_box: the largest enclosed axis-aligned box (optional)
+        outer_box: the smallest enclosing axis-aligned box (optional)
     """
 
     def __init__(
@@ -43,36 +42,31 @@ class Polytope:
 
         self.variables = variables
         self.env = env
-        self.outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
+        self._inner_box: Optional[tuple[np.ndarray, np.ndarray]] = None
+        self._outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
+
+    @property
+    def inner_box(self) -> tuple[np.ndarray, np.ndarray]:
+        if self._inner_box is None:
+            #self._inner_box = opt.ScipyOptimizer().compute_inner_box(self)
+            self._inner_box = opt.CvxpyOptimizer().compute_inner_box(self)
+
+        return self._inner_box
+
+
+    @property
+    def outer_box(self) -> tuple[np.ndarray, np.ndarray]:
+        if self._outer_box is None:
+            self._outer_box = opt.ScipyOptimizer().compute_outer_box(self)
+
+        return self._outer_box
+            
 
     def to_pysmt(self) -> FNode:
         """Returns a pysmt formula (FNode) encoding the polytope."""
         clauses = [ineq.to_pysmt() for ineq in self.inequalities]
         return self.env.formula_manager.And(*clauses)
 
-    def compute_outer_box(self) -> tuple[np.ndarray, np.ndarray]:
-        """Returns the tightest axis-aligned hyperrectangle fully
-        enclosing the polytope by making 2N calls to an LP solver.
-
-        The result is stored for future uses.
-
-        Returns:
-            Two numpy arrays corresponding to the extremes of the box.
-        """
-        if self.outer_box is not None:
-            return self.outer_box
-
-        lowerl, upperl = [], []
-        optimizer = opt.ScipyOptimizer()
-        for i, var in enumerate(self.variables):
-            cost = Polynomial(var, self.variables, self.env)
-            min_var = optimizer.optimize(self, cost, maximize=False)[i]
-            max_var = optimizer.optimize(self, cost, maximize=True)[i]
-            lowerl.append(min_var)
-            upperl.append(max_var)
-
-        self.outer_box = (np.array(lowerl), np.array(upperl))
-        return self.outer_box
 
     def to_numpy(
         self,
