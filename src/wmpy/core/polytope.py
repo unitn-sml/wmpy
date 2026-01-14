@@ -48,11 +48,10 @@ class Polytope:
     @property
     def inner_box(self) -> tuple[np.ndarray, np.ndarray]:
         if self._inner_box is None:
-            #self._inner_box = opt.ScipyOptimizer().compute_inner_box(self)
+            # self._inner_box = opt.ScipyOptimizer().compute_inner_box(self)
             self._inner_box = opt.CvxpyOptimizer().compute_inner_box(self)
 
         return self._inner_box
-
 
     @property
     def outer_box(self) -> tuple[np.ndarray, np.ndarray]:
@@ -60,13 +59,11 @@ class Polytope:
             self._outer_box = opt.ScipyOptimizer().compute_outer_box(self)
 
         return self._outer_box
-            
 
     def to_pysmt(self) -> FNode:
         """Returns a pysmt formula (FNode) encoding the polytope."""
         clauses = [ineq.to_pysmt() for ineq in self.inequalities]
         return self.env.formula_manager.And(*clauses)
-
 
     def to_numpy(
         self,

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class ScipyOptimizer:
 
-    def __init__(self, epsilon=1e-2):
+    def __init__(self, epsilon: float = 1e-2) -> None:
         """Default constructor.
 
         Args:
@@ -17,13 +17,12 @@ class ScipyOptimizer:
         """
         self.epsilon = epsilon
 
-
-    def compute_inner_box(self, polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_inner_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
         """Returns the largest axis-aligned hyperrectangle fully
         enclosed in the polytope by solving the convex optimization
         problem on 2N variables described here:
 
-            https://scicomp.stackexchange.com/a/26465        
+            https://scicomp.stackexchange.com/a/26465
 
         The result is stored for future uses.
 
@@ -41,7 +40,7 @@ class ScipyOptimizer:
         print(A.astype(float))
         print("b:")
         print(B.astype(float))
-        
+
         l0 = linprog(np.ones(N), A_ub=A, b_ub=B, method="highs-ds").x
         Anotl0 = np.concatenate((A, -np.identity(N)))
         Bnotl0 = np.concatenate((B, l0 - np.ones(N) * self.epsilon))
@@ -56,17 +55,17 @@ class ScipyOptimizer:
         Bextra = np.ones(N) * (-self.epsilon)
 
         # L <= U
-        #Aextra = np.concatenate((Aextra, Aextra))
-        #Bextra = np.concatenate((Bextra, np.zeros(N)))
-        
+        # Aextra = np.concatenate((Aextra, Aextra))
+        # Bextra = np.concatenate((Bextra, np.zeros(N)))
+
         Atot = np.concatenate((block_diag(Al, Au), Aextra))
-        Btot = np.concatenate((B, B, Bextra))        
-        
+        Btot = np.concatenate((B, B, Bextra))
+
         constr = LinearConstraint(Atot, ub=Btot, keep_feasible=True)
-        obj = lambda lu : -np.pow(np.prod(np.abs(lu[N:] - lu[:N])), 1/N)
-        #obj = lambda lu : -np.sum(np.abs(lu[N:] - lu[:N]))
-        obj = lambda lu : -np.prod(lu[N:] - lu[:N])
-        obj = lambda lu : -np.sum(lu[N:])
+        obj = lambda lu: -np.pow(np.prod(np.abs(lu[N:] - lu[:N])), 1 / N)
+        # obj = lambda lu : -np.sum(np.abs(lu[N:] - lu[:N]))
+        obj = lambda lu: -np.prod(lu[N:] - lu[:N])
+        obj = lambda lu: -np.sum(lu[N:])
 
         print("Atot:")
         print(Atot.astype(float))
@@ -76,9 +75,7 @@ class ScipyOptimizer:
         print("\n2LP x FINDING INITIAL (l,u)")
         print("l0:", lu0[:N], "u0:", lu0[N:])
 
-        res = minimize(obj, lu0,
-                       method='trust-constr',
-                       constraints=constr)
+        res = minimize(obj, lu0, method="trust-constr", constraints=constr)
 
         assert res.x is not None
 
@@ -86,11 +83,10 @@ class ScipyOptimizer:
         print("message:", res.message)
         print("n.iters:", res.nit)
         print("l*:", res.x[:N], "u*:", res.x[N:])
-        
 
         return (res.x[:N], res.x[N:])
 
-    def compute_outer_box(self, polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_outer_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
         """Returns the smallest axis-aligned hyperrectangle fully
         enclosing the polytope by making 2N calls to an LP solver.
 
@@ -103,7 +99,8 @@ class ScipyOptimizer:
             Two numpy arrays corresponding to the extremes of the box.
         """
 
-        lowerl, upperl = [], []
+        lowerl: list[float] = []
+        upperl: list[float] = []
         A, B, S = polytope.to_numpy()
         N = len(polytope.variables)
         for i, var in enumerate(polytope.variables):
@@ -121,7 +118,6 @@ class ScipyOptimizer:
                 result_array.append(res.x[i])
 
         return (np.array(lowerl), np.array(upperl))
-
 
     def optimize(
         self, polytope: "Polytope", polynomial: "Polynomial", maximize: bool = True

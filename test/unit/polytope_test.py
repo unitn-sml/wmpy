@@ -80,26 +80,31 @@ box = [
 h1 = smt.LE(smt.Plus(x, y), smt.Real(1))
 h2 = smt.LE(y, x)
 h3 = smt.LE(smt.Real(1 / 2), x)
-    
+
+
 def test_polytope_outer_box1():
     lower, upper = Polytope(box, [x, y], env=env).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
 
 def test_polytope_outer_box2():
     lower, upper = Polytope(box + [h1], [x, y], env=env).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
+
 def test_polytope_outer_box3():
     lower, upper = Polytope(box + [h2], [x, y], env=env).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
+
 def test_polytope_outer_box4():
     lower, upper = Polytope(box + [h1, h2], [x, y], env=env).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1 / 2])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
 
 def test_polytope_outer_box5():
     lower, upper = Polytope(box + [h1, h2, h3], [x, y], env=env).outer_box
@@ -112,23 +117,26 @@ def test_polytope_inner_box1():
     expl, expu = np.array([0, 0]), np.array([1, 1])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
 
+
 def test_polytope_inner_box2():
     lower, upper = Polytope(box + [h1], [x, y], env=env).inner_box
-    expl, expu = np.array([0, 0]), np.array([1/2, 1/2])
+    expl, expu = np.array([0, 0]), np.array([1 / 2, 1 / 2])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
 
 def test_polytope_inner_box3():
     lower, upper = Polytope(box + [h2], [x, y], env=env).inner_box
-    expl, expu = np.array([1/2, 0]), np.array([1, 1/2])
+    expl, expu = np.array([1 / 2, 0]), np.array([1, 1 / 2])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
 
 def test_polytope_inner_box4():
     lower, upper = Polytope(box + [h1, h2], [x, y], env=env).inner_box
-    expl, expu = np.array([1/4, 0]), np.array([3/4, 1/4])
+    expl, expu = np.array([1 / 4, 0]), np.array([3 / 4, 1 / 4])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+
 
 def test_polytope_inner_box5():
     lower, upper = Polytope(box + [h1, h2, h3], [x, y], env=env).inner_box
-    expl, expu = np.array([1/2, 0]), np.array([3/4, 1/4])
+    expl, expu = np.array([1 / 2, 0]), np.array([3 / 4, 1 / 4])
     assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
-

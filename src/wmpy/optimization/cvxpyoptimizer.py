@@ -10,7 +10,7 @@ class CvxpyOptimizer:
 
     DEF_SOLVER = "SCS"
 
-    def __init__(self, epsilon=1e-2):
+    def __init__(self, epsilon: float = 1e-2) -> None:
         """Default constructor.
 
         Args:
@@ -18,13 +18,12 @@ class CvxpyOptimizer:
         """
         self.epsilon = epsilon
 
-
-    def compute_inner_box(self, polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_inner_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
         """Returns the largest axis-aligned hyperrectangle fully
         enclosed in the polytope by solving the convex optimization
         problem on 2N variables described here:
 
-            https://scicomp.stackexchange.com/a/26465        
+            https://scicomp.stackexchange.com/a/26465
 
         The result is stored for future uses.
 
@@ -48,18 +47,11 @@ class CvxpyOptimizer:
         minimizer = cp.Minimize(obj)
         constraints = [Aplus @ u - Aminus @ l <= B]
         prob = cp.Problem(minimizer, constraints)
-        
+
         l1dist = -prob.solve(solver="SCS", eps=1e-8)
 
-        if np.abs(l1dist) == np.inf:
-            print("Unbounded problem")
-        else:
-            print(f"L1 dist: {l1dist}")
-            print(f"l: {l.value}")
-            print(f"u: {u.value}")
-            vol = np.prod(u.value - l.value)
-            print(f"volume: {vol}")
+        assert np.abs(l1dist) != np.inf, "Unbounded problem"
+        assert l.value is not None
+        assert u.value is not None
 
         return (l.value, u.value)
-
-
