@@ -5,7 +5,7 @@ import networkx as nx
 from pysmt.fnode import FNode
 from pysmt.typing import REAL, BOOL
 
-from .polynomial import Polynomial
+from .polynomial import Polynomial, PolynomialParser
 from .polytope import Polytope
 from wmpy.enumeration.enumerator import Enumerator
 
@@ -22,7 +22,10 @@ class AssignmentConverter:
         self.enumerator = enumerator
 
     def convert(
-        self, truth_assignment: dict[FNode, bool], domain: Collection[FNode]
+        self,
+        truth_assignment: dict[FNode, bool],
+        domain: Collection[FNode],
+        polynomials: PolynomialParser,
     ) -> tuple[Polytope, Polynomial]:
         """Converts a truth assignment (as returned by an Enumerator)
         into a <Polytope, Polynomial> pair.
@@ -30,6 +33,7 @@ class AssignmentConverter:
         Args:
             truth_assignment: mapping pysmt atoms to bool
             domain: list of real variables in pysmt format
+            polynomials: common polynomial parser
 
         Returns:
             A convex integration problem as a pair of instances of Polytope and Polynomial.
@@ -111,7 +115,9 @@ class AssignmentConverter:
             else:
                 raise NotImplementedError("Unhandled case")
 
-        polytope = Polytope(inequalities, domain, env=self.enumerator.env)
-        polynomial = Polynomial(uncond_weight, domain, env=self.enumerator.env)
+        polytope = Polytope(inequalities, domain, polynomials, env=self.enumerator.env)
+        polynomial = Polynomial(
+            uncond_weight, domain, polynomials, env=self.enumerator.env
+        )
 
         return polytope, polynomial

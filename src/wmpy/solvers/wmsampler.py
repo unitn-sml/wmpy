@@ -6,6 +6,7 @@ from pysmt.shortcuts import Bool
 from pysmt.fnode import FNode
 
 from wmpy.core import AssignmentConverter
+from wmpy.core.polynomial import PolynomialParser
 from wmpy.enumeration import SAEnumerator
 from wmpy.integration import LattEIntegrator
 from wmpy.sampling import RejectionSampler
@@ -37,11 +38,15 @@ class WMSampler:
         """
         enumerator = SAEnumerator(support, weight)
         converter = AssignmentConverter(enumerator)
+        polynomials = PolynomialParser(domain)
         integrator = LattEIntegrator()
+
         convex_integrals = []
         n_unassigned_bools = []
         for truth_assignment, nub in enumerator.enumerate(Bool(True)):
-            convex_integrals.append(converter.convert(truth_assignment, domain))
+            convex_integrals.append(
+                converter.convert(truth_assignment, domain, polynomials)
+            )
             n_unassigned_bools.append(nub)
 
         factors = [2**nb for nb in n_unassigned_bools]

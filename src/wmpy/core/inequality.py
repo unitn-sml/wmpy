@@ -4,7 +4,7 @@ import numpy as np
 from pysmt.environment import Environment
 from pysmt.fnode import FNode
 
-from wmpy.core.polynomial import Polynomial
+from wmpy.core.polynomial import Polynomial, PolynomialParser
 
 
 class Inequality:
@@ -20,12 +20,19 @@ class Inequality:
         polynomial: the Polynomial P
     """
 
-    def __init__(self, expr: FNode, variables: Collection[FNode], env: Environment):
+    def __init__(
+        self,
+        expr: FNode,
+        variables: Collection[FNode],
+        polynomials: PolynomialParser,
+        env: Environment,
+    ):
         """Default constructor.
 
         Args:
             expr: the inequality in pysmt format
             variables: the continuous integration domain
+            polynomials: common polynomial parser
             env: the pysmt environment
         """
         if expr.is_le() or expr.is_lt():
@@ -41,7 +48,7 @@ class Inequality:
         p1, p2 = expr.args()
         # (p1 OP p2) => (p1 - p2 OP 0)
         poly_sub = self.mgr.Plus(p1, self.mgr.Times(self.mgr.Real(-1), p2))
-        self.polynomial = Polynomial(poly_sub, variables, env)
+        self.polynomial = Polynomial(poly_sub, variables, polynomials, env)
         assert self.polynomial.degree == 1
 
     def to_numpy(self) -> tuple[np.ndarray, float]:

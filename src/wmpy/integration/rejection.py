@@ -44,7 +44,9 @@ class RejectionIntegrator:
         if integrand.is_zero:
             return 0.0
 
-        uniform_weight = Polynomial(smt.Real(1), integrand.variables, integrand.env)
+        uniform_weight = Polynomial(
+            smt.Real(1), integrand.variables, polytope.polynomials, integrand.env
+        )
         lower, upper = polytope.compute_outer_box()
         sampler = RejectionSampler(polytope, uniform_weight)
         valid_sample = sampler.sample(self.n_samples, max_iterations=max_iterations)

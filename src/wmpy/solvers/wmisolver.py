@@ -5,6 +5,7 @@ import numpy as np
 from pysmt.fnode import FNode
 
 from wmpy.core import AssignmentConverter
+from wmpy.core.polynomial import PolynomialParser
 from wmpy.enumeration import Enumerator, TotalEnumerator
 from wmpy.integration import Integrator, RejectionIntegrator
 
@@ -55,10 +56,14 @@ class WMISolver:
             "wmi": the weighted model integral as a non-negative scalar value
             "npolys": the number of convex fragments enumerated
         """
+        polynomials = PolynomialParser(domain)
+
         convex_integrals = []
         n_unassigned_bools = []
         for truth_assignment, nub in self.enumerator.enumerate(query):
-            convex_integrals.append(self.converter.convert(truth_assignment, domain))
+            convex_integrals.append(
+                self.converter.convert(truth_assignment, domain, polynomials)
+            )
             n_unassigned_bools.append(nub)
 
         factors = [2**nb for nb in n_unassigned_bools]

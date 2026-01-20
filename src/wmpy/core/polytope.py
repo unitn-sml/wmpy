@@ -8,6 +8,7 @@ from wmpy.core.inequality import Inequality
 
 # from wmpy.optimization import ScipyOptimizer
 import wmpy.optimization as opt
+from wmpy.core.polynomial import PolynomialParser
 
 
 class Polytope:
@@ -24,6 +25,7 @@ class Polytope:
         self,
         expressions: Collection[FNode],
         variables: Collection[FNode],
+        polynomials: PolynomialParser,
         env: Environment,
     ):
         """Default constructor for a H-polytope defined on an ordered list of variables (the continuous integration domain).
@@ -31,17 +33,19 @@ class Polytope:
         Args:
            expressions: list of linear inequalities in pysmt format
            variables: list of pysmt real variables
+           polynomials: common polynomial parser
            env: the pysmt environment
         """
 
         self.inequalities: list[Inequality] = []
         for expr in expressions:
             if expr.is_le() or expr.is_lt():
-                self.inequalities.append(Inequality(expr, variables, env))
+                self.inequalities.append(Inequality(expr, variables, polynomials, env))
             else:
                 raise ValueError(f"Can't parse {expr}, not an (in)equality.")
 
         self.variables = variables
+        self.polynomials = polynomials
         self.env = env
         self.outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
 
@@ -65,7 +69,7 @@ class Polytope:
         lowerl, upperl = [], []
         optimizer = opt.ScipyOptimizer()
         for i, var in enumerate(self.variables):
-            cost = Polynomial(var, self.variables, self.env)
+            cost = Polynomial(var, self.variables, self.polynomials, self.env)
             min_var = optimizer.optimize(self, cost, maximize=False)[i]
             max_var = optimizer.optimize(self, cost, maximize=True)[i]
             lowerl.append(min_var)

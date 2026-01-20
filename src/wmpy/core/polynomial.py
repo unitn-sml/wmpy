@@ -11,104 +11,6 @@ from pysmt.walkers import DagWalker
 Monomials = dict[tuple[int, ...], float]  # Maps exponent tuples to coefficients
 
 
-class Polynomial:
-    """Internal class representing canonical polynomials.
-    Implemented as a dict, having for each monomial: {key : coefficient}
-    where key is a tuple encoding exponents of the ordered variables.
-
-    E.g. {(2,0,1): 3} = "3 * x^2 * y^0 * z^1"
-
-    Attributes:
-        monomials: the monomial dictionary
-        variables: list of pysmt real variables
-        ordered_keys: sorted list of monomial keys
-        mgr: the pysmt formula manager
-    """
-
-    def __init__(self, expr: FNode, variables: Collection[FNode], env: Environment):
-        """Default constructor.
-
-        Args:
-            expr: the polynomial in pysmt format
-            variables: list of pysmt real variables
-            env: the pysmt environment
-        """
-        self.monomials = PolynomialParser(variables).parse(expr)
-        const_key = tuple(0 for _ in range(len(variables)))
-        if const_key in self.monomials and self.monomials[const_key] == 0:
-            self.monomials.pop(const_key)
-        self.variables = variables
-        self.ordered_keys = sorted(self.monomials.keys())
-        self.env = env
-
-    @property
-    def degree(self) -> int:
-        """Returns the degree of the polynomial."""
-        if self.is_zero:
-            return 0
-        else:
-            return max(sum(exponents) for exponents in self.monomials)
-
-    @property
-    def is_zero(self) -> bool:
-        """Returns true if the polynomial is zero."""
-        return len(self.monomials) == 0
-
-    def to_numpy(self) -> Callable[[np.ndarray], np.ndarray]:
-        """Returns the polynomial as a callable function.
-
-        This function can be used to evaluate a numpy array.
-        """
-        return lambda x: np.sum(
-            np.array(
-                [k * np.prod(np.pow(x, e), axis=1) for e, k in self.monomials.items()]
-            ).T,
-            axis=1,
-        )
-
-    def to_pysmt(self) -> FNode:
-        """Returns the polynomial in pysmt format."""
-        mgr = self.env.formula_manager
-
-        if len(self.monomials) == 0:
-            return mgr.Real(0)
-
-        pysmt_monos = []
-        for key in self.ordered_keys:
-            factors = [mgr.Real(self.monomials[key])]
-            for i, var in enumerate(self.variables):
-                if key[i] > 1 or key[i] < 0:
-                    factors.append(mgr.Pow(var, mgr.Real(key[i])))
-                elif key[i] == 1:
-                    factors.append(var)
-
-            pysmt_monos.append(mgr.Times(*factors))
-
-        return mgr.Plus(*pysmt_monos)
-
-    def __len__(self) -> int:
-        return len(self.monomials)
-
-    def __str__(self) -> str:
-        str_monos = []
-        for key in self.ordered_keys:
-            coeff = f"{self.monomials[key]}"
-
-            term = "*".join(
-                [
-                    f"{var.symbol_name()}^{key[i]}"
-                    # " * ".join([f"{var.symbol_name()}^{key[i]}"
-                    for i, var in enumerate(self.variables)
-                    if key[i] != 0
-                ]
-            )
-
-            mono = f"{coeff}*{term}" if term else coeff
-            str_monos.append(mono)
-
-        return " + ".join(str_monos)
-
-
 class PolynomialParser(DagWalker):
     """A walker to parse a polynomial expression (pysmt.FNode) into a dictionary of monomials."""
 
@@ -223,6 +125,111 @@ class PolynomialParser(DagWalker):
     @property
     def _zero(self) -> Monomials:
         return dict()
+
+
+class Polynomial:
+    """Internal class representing canonical polynomials.
+    Implemented as a dict, having for each monomial: {key : coefficient}
+    where key is a tuple encoding exponents of the ordered variables.
+
+    E.g. {(2,0,1): 3} = "3 * x^2 * y^0 * z^1"
+
+    Attributes:
+        monomials: the monomial dictionary
+        variables: list of pysmt real variables
+        ordered_keys: sorted list of monomial keys
+        mgr: the pysmt formula manager
+    """
+
+    def __init__(
+        self,
+        expr: FNode,
+        variables: Collection[FNode],
+        polynomials: PolynomialParser,
+        env: Environment,
+    ):
+        """Default constructor.
+
+        Args:
+            expr: the polynomial in pysmt format
+            variables: list of pysmt real variables
+            polynomials: common polynomial parser
+            env: the pysmt environment
+        """
+        self.monomials = polynomials.parse(expr)
+        const_key = tuple(0 for _ in range(len(variables)))
+        if const_key in self.monomials and self.monomials[const_key] == 0:
+            self.monomials.pop(const_key)
+        self.variables = variables
+        self.ordered_keys = sorted(self.monomials.keys())
+        self.env = env
+
+    @property
+    def degree(self) -> int:
+        """Returns the degree of the polynomial."""
+        if self.is_zero:
+            return 0
+        else:
+            return max(sum(exponents) for exponents in self.monomials)
+
+    @property
+    def is_zero(self) -> bool:
+        """Returns true if the polynomial is zero."""
+        return len(self.monomials) == 0
+
+    def to_numpy(self) -> Callable[[np.ndarray], np.ndarray]:
+        """Returns the polynomial as a callable function.
+
+        This function can be used to evaluate a numpy array.
+        """
+        return lambda x: np.sum(
+            np.array(
+                [k * np.prod(np.pow(x, e), axis=1) for e, k in self.monomials.items()]
+            ).T,
+            axis=1,
+        )
+
+    def to_pysmt(self) -> FNode:
+        """Returns the polynomial in pysmt format."""
+        mgr = self.env.formula_manager
+
+        if len(self.monomials) == 0:
+            return mgr.Real(0)
+
+        pysmt_monos = []
+        for key in self.ordered_keys:
+            factors = [mgr.Real(self.monomials[key])]
+            for i, var in enumerate(self.variables):
+                if key[i] > 1 or key[i] < 0:
+                    factors.append(mgr.Pow(var, mgr.Real(key[i])))
+                elif key[i] == 1:
+                    factors.append(var)
+
+            pysmt_monos.append(mgr.Times(*factors))
+
+        return mgr.Plus(*pysmt_monos)
+
+    def __len__(self) -> int:
+        return len(self.monomials)
+
+    def __str__(self) -> str:
+        str_monos = []
+        for key in self.ordered_keys:
+            coeff = f"{self.monomials[key]}"
+
+            term = "*".join(
+                [
+                    f"{var.symbol_name()}^{key[i]}"
+                    # " * ".join([f"{var.symbol_name()}^{key[i]}"
+                    for i, var in enumerate(self.variables)
+                    if key[i] != 0
+                ]
+            )
+
+            mono = f"{coeff}*{term}" if term else coeff
+            str_monos.append(mono)
+
+        return " + ".join(str_monos)
 
 
 def _is_integral(v: SupportsInt) -> bool:
