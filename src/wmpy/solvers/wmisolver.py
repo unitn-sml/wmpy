@@ -30,7 +30,7 @@ class WMISolver:
         """Default constructor.
 
         Args:
-            enumerator: the enumerator to use (default: TotalEnumerator)
+            enumerator: the enumerator to use
             integrator: the integrator to use (default: RejectionIntegrator)
         """
         self.enumerator = enumerator
