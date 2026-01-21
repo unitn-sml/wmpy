@@ -6,8 +6,8 @@ from pysmt.shortcuts import Bool
 from pysmt.fnode import FNode
 
 from wmpy.core import AssignmentConverter
-from wmpy.enumeration import SAEnumerator
-from wmpy.integration import LattEIntegrator
+from wmpy.enumeration import Enumerator
+from wmpy.integration import Integrator, LattEIntegrator
 from wmpy.sampling import RejectionSampler
 
 
@@ -19,25 +19,30 @@ class WMSampler:
     2) an online sampling phase, where the information above determines the different subsamples' sizes
     """
 
+    DEF_INTEGRATOR = LattEIntegrator
+
     def __init__(
         self,
-        support: FNode,
-        weight: Optional[FNode],
+        enumerator: Enumerator,
         domain: Collection[FNode],
+        integrator: Optional[Integrator] = None,
         seed: Optional[int] = None,
     ):
         """Default constructor. Solves the preprocessing step by solving WMI.
         Uses this information for constructing a weighted strata for subsequent sampling efforts.
 
         Args:
-            support: the support of the weight function (a pysmt formula)
-            weights: the weight function as a pysmt term
+            enumerator: an instance of Enumerator (support, weight)
             domain: the continuous integration domain (a list of pysmt real variables)
+            integrator: an Integrator instance (default: LatteIntegrator)
             seed: the seed number (optional)
         """
-        enumerator = SAEnumerator(support, weight)
+
+        if integrator is None:
+            integrator = self.DEF_INTEGRATOR()
+
         converter = AssignmentConverter(enumerator)
-        integrator = LattEIntegrator()
+
         convex_integrals = []
         n_unassigned_bools = []
         for truth_assignment, nub in enumerator.enumerate(Bool(True)):
@@ -47,6 +52,9 @@ class WMSampler:
         factors = [2**nb for nb in n_unassigned_bools]
         unnormalized_masses = integrator.integrate_batch(convex_integrals) * factors
         wmi: float = np.sum(unnormalized_masses)
+
+        if wmi <= 0:
+            raise ValueError("Can't compute the normalization constant")
 
         self.N = len(domain)
         self.subsamplers = []

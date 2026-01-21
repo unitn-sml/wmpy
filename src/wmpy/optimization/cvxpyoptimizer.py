@@ -18,7 +18,7 @@ class CvxpyOptimizer:
         """
         self.epsilon = epsilon
 
-    def compute_inner_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_inner_box(self, polytope: "Polytope") -> tuple[np.ndarray, np.ndarray]:
         """Returns the largest axis-aligned hyperrectangle fully
         enclosed in the polytope by solving the convex optimization
         problem on 2N variables described here:

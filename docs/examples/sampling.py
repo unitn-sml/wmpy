@@ -5,10 +5,10 @@ from matplotlib import cm
 import numpy as np
 
 from wmpy.core import Polynomial
+from wmpy.enumeration import SAEnumerator
 from wmpy.solvers import WMSampler
 
 N_SAMPLES = 5000
-DPU = 100
 
 smt_env = get_env()
 
@@ -30,15 +30,14 @@ formula = support = And(
 
 weights = Plus(x, y)
 
-sampler = WMSampler(formula, weights, [x, y])
+sampler = WMSampler(SAEnumerator(formula, weights), [x, y])
 samples = sampler.sample(N_SAMPLES, max_iterations=10)
 
 ax1 = plt.subplot(1, 2, 1)
 ax1.scatter(samples[:, 0], samples[:, 1], marker="x", alpha=0.5)
 
 ax2 = plt.subplot(1, 2, 2)
-# uni = np.array(list(product(np.arange(0, 1, 1/DPU), repeat=2)))
-sampler = WMSampler(formula, Real(1), [x, y])
+sampler = WMSampler(SAEnumerator(formula, Real(1)), [x, y])
 uni = sampler.sample(N_SAMPLES * 10, max_iterations=10)
 f = Polynomial(weights, [x, y], smt_env).to_numpy()
 ax2.scatter(uni[:, 0], uni[:, 1], marker="x", alpha=1.0, color=cm.viridis(f(uni)))

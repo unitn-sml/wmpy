@@ -17,7 +17,7 @@ class ScipyOptimizer:
         """
         self.epsilon = epsilon
 
-    def compute_inner_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_inner_box(self, polytope: "Polytope") -> tuple[np.ndarray, np.ndarray]:
         """Returns the largest axis-aligned hyperrectangle fully
         enclosed in the polytope by solving the convex optimization
         problem on 2N variables described here:
@@ -33,6 +33,7 @@ class ScipyOptimizer:
             Two numpy arrays corresponding to the extremes of the box.
 
         """
+        
         A, B, S = polytope.to_numpy()
         N = len(polytope.variables)
 
@@ -84,9 +85,10 @@ class ScipyOptimizer:
         print("n.iters:", res.nit)
         print("l*:", res.x[:N], "u*:", res.x[N:])
 
-        return (res.x[:N], res.x[N:])
+        raise NotImplementedError("TOFIX")
+        #return (res.x[:N], res.x[N:])
 
-    def compute_outer_box(self, polytope: Polytope) -> tuple[np.ndarray, np.ndarray]:
+    def compute_outer_box(self, polytope: "Polytope") -> tuple[np.ndarray, np.ndarray]:
         """Returns the smallest axis-aligned hyperrectangle fully
         enclosing the polytope by making 2N calls to an LP solver.
 
@@ -160,6 +162,7 @@ class ScipyOptimizer:
             return res.x
 
         else:
+            # TODO
             raise NotImplementedError(
                 "Non-linear optimization is currently not supported"
             )

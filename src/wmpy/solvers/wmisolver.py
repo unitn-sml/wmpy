@@ -5,7 +5,7 @@ import numpy as np
 from pysmt.fnode import FNode
 
 from wmpy.core import AssignmentConverter
-from wmpy.enumeration import Enumerator, TotalEnumerator
+from wmpy.enumeration import Enumerator
 from wmpy.integration import Integrator, RejectionIntegrator
 
 
@@ -30,8 +30,8 @@ class WMISolver:
         """Default constructor.
 
         Args:
-            enumerator: the enumerator to use
-            integrator: the integrator to use (default: RejectionIntegrator)
+            enumerator: an instance of Enumerator (support, weight)
+            integrator: an Integrator instance (default: RejectionIntegrator)
         """
         self.enumerator = enumerator
 
