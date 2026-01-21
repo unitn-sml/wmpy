@@ -87,8 +87,9 @@ class AssignmentConverter:
             uncond_weight = uncond_weight.substitute({alias: aliases[alias]})
 
         # substitute all constants
-        uncond_weight = uncond_weight.substitute(constants)
-        convex_formula = convex_formula.substitute(constants)
+        if constants:
+            uncond_weight = uncond_weight.substitute(constants)
+            convex_formula = convex_formula.substitute(constants)
 
         inequalities = []
         for literal in convex_formula.args():
