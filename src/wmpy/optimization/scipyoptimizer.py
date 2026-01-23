@@ -33,7 +33,7 @@ class ScipyOptimizer:
             Two numpy arrays corresponding to the extremes of the box.
 
         """
-        
+
         A, B, S = polytope.to_numpy()
         N = len(polytope.variables)
 
@@ -86,7 +86,7 @@ class ScipyOptimizer:
         print("l*:", res.x[:N], "u*:", res.x[N:])
 
         raise NotImplementedError("TOFIX")
-        #return (res.x[:N], res.x[N:])
+        # return (res.x[:N], res.x[N:])
 
     def compute_outer_box(self, polytope: "Polytope") -> tuple[np.ndarray, np.ndarray]:
         """Returns the smallest axis-aligned hyperrectangle fully
