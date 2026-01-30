@@ -52,19 +52,16 @@ class RejectionSampler:
         N = len(self.polytope.variables)
         result = np.array([]).reshape(-1, N)
         A, B, S = self.polytope.to_numpy()
+        S = S.astype(bool)
         lower, upper = self.polytope.outer_box
         it = 0
         while it < max_iterations:
             it += 1
             uniform_sample = np.random.random((n_samples, N)) * (upper - lower) + lower
-            valid_sample = uniform_sample[
-                np.all(
-                    (uniform_sample @ A[S].T < B[S])
-                    & (uniform_sample @ A[~S].T <= B[~S]),
-                    axis=1,
-                )
-            ]
-
+            valid_ids = np.all((uniform_sample @ A[S].T < B[S]), axis=1) & np.all(
+                (uniform_sample @ A[~S].T <= B[~S]), axis=1
+            )
+            valid_sample = uniform_sample[valid_ids]
             u = np.random.random(len(valid_sample)) * self.w_max
             valid_sample = valid_sample[u <= self.target(valid_sample)]
             result = np.concatenate((result, valid_sample), axis=0)
