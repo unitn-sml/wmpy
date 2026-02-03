@@ -37,8 +37,6 @@ def test_no_infeasible_sample(enumerator, exact_integrator):
         )
         assert smt.is_sat(smt.And(chi, chi_s)), f"Unfeasible sample: {s}"
 
-    return samples
-
 
 def test_null_density_error(enumerator, exact_integrator):
     env = smt.get_env()

@@ -41,12 +41,12 @@ class WMSampler:
         if integrator is None:
             integrator = self.DEF_INTEGRATOR()
 
-        converter = AssignmentConverter(enumerator)
+        converter = AssignmentConverter(enumerator, domain)
 
         convex_integrals = []
         n_unassigned_bools = []
         for truth_assignment, nub in enumerator.enumerate(Bool(True)):
-            convex_integrals.append(converter.convert(truth_assignment, domain))
+            convex_integrals.append(converter.convert(truth_assignment))
             n_unassigned_bools.append(nub)
 
         factors = [2**nb for nb in n_unassigned_bools]

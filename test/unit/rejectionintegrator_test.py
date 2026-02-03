@@ -4,7 +4,7 @@ import pytest
 
 import pysmt.shortcuts as smt
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 from wmpy.integration import RejectionIntegrator
 
 
@@ -13,16 +13,18 @@ from wmpy.integration import RejectionIntegrator
 )
 def test_integrate_axisaligned_constant(n, xmin, side):
     env = smt.get_env()
-    inequalities = []
     variables = [smt.Symbol(f"x{i}", smt.REAL) for i in range(n)]
+    parser = PolynomialParser(variables, env)
+
+    inequalities = []
     for xi in variables:
         inequalities.extend(
             [smt.LE(smt.Real(xmin), xi), smt.LE(xi, smt.Real(xmin + side))]
         )
 
     volume = side ** (n + 1)
-    polynomial = Polynomial(smt.Real(float(side)), variables, env)
-    polytope = Polytope(inequalities, variables, env)
+    polynomial = parser.parse(smt.Real(float(side)))
+    polytope = Polytope(inequalities, parser)
     result = RejectionIntegrator().integrate(polytope, polynomial)
     assert np.isclose(result, volume), f"Expected {side} ^ {n} = {volume}, got {result}"
 
@@ -32,6 +34,8 @@ def test_integrate__axisaligned_constant_batch(n, batch_size):
     np.random.seed(10 * n + batch_size)
     env = smt.get_env()
     variables = [smt.Symbol(f"x{i}", smt.REAL) for i in range(n)]
+    parser = PolynomialParser(variables, env)
+
     volume = []
     integrals = []
     for npoly in range(batch_size):
@@ -46,8 +50,8 @@ def test_integrate__axisaligned_constant_batch(n, batch_size):
 
         weight = np.random.random()
         volume[-1] *= weight
-        polynomial = Polynomial(smt.Real(float(weight)), variables, env)
-        integrals.append((Polytope(inequalities, variables, env), polynomial))
+        polynomial = parser.parse(smt.Real(float(weight)))
+        integrals.append((Polytope(inequalities, parser), polynomial))
 
     result = RejectionIntegrator().integrate_batch(integrals)
     assert np.isclose(

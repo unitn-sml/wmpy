@@ -25,15 +25,17 @@ class Polynomial:
         mgr: the pysmt formula manager
     """
 
-    def __init__(self, expr: FNode, variables: Collection[FNode], env: Environment):
+    def __init__(
+        self, monomials: Monomials, variables: Collection[FNode], env: Environment
+    ):
         """Default constructor.
 
         Args:
-            expr: the polynomial in pysmt format
+            monomials: the list of monomials returned by PolynomialParser.walk
             variables: list of pysmt real variables
             env: the pysmt environment
         """
-        self.monomials = PolynomialParser(variables).parse(expr)
+        self.monomials = monomials
         const_key = tuple(0 for _ in range(len(variables)))
         if const_key in self.monomials and self.monomials[const_key] == 0:
             self.monomials.pop(const_key)
@@ -112,12 +114,26 @@ class Polynomial:
 class PolynomialParser(DagWalker):
     """A walker to parse a polynomial expression (pysmt.FNode) into a dictionary of monomials."""
 
-    def __init__(self, variables: Collection[FNode]):
-        super().__init__()
-        self.variables = variables
+    def __init__(self, variables: Collection[FNode], env: Environment):
+        """Default constructor.
 
-    def parse(self, expr: FNode) -> Monomials:
-        return self.walk(expr)
+        Args:
+            variables: list of pysmt real variables
+            env: the pysmt environment
+        """
+        super().__init__()
+
+        if len(variables) == 0:
+            raise ValueError("Empty variables list")
+
+        self.variables = variables
+        self.env = env
+
+    def parse(self, expr: FNode) -> Polynomial:
+        if any([v not in self.variables for v in expr.get_free_variables()]):
+            raise ValueError("Expression contains unknown variables")
+
+        return Polynomial(self.walk(expr), self.variables, self.env)
 
     def walk_real_constant(self, formula: FNode, **kwargs: Any) -> Monomials:
         exp_key = tuple(0 for _ in range(len(self.variables)))

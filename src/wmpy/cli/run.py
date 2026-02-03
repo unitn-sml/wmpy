@@ -135,9 +135,9 @@ def run(args: argparse.Namespace) -> None:
     integrator = parse_integrator(args)
 
     t0 = time()
-    solver = WMISolver(enumerator, integrator=integrator)
+    solver = WMISolver(enumerator, variables, integrator=integrator)
 
-    result = solver.compute(smt.Bool(True), variables)
+    result = solver.compute(smt.Bool(True))
     tZ = time() - t0
     logger.info(f"Z: {result['wmi']}")
     logger.info(f"npolys: {result['npolys']}")
@@ -145,7 +145,7 @@ def run(args: argparse.Namespace) -> None:
 
     for i, query in enumerate(density.queries):
         ti0 = time()
-        result = solver.compute(query, variables)
+        result = solver.compute(query)
         tif = time() - ti0
         logger.info(f"query{i}: {result['wmi']}")
         logger.info(f"npolys{i}: {result['npolys']}")

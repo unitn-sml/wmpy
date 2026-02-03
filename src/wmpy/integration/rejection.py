@@ -3,7 +3,7 @@ from typing import Collection, Optional
 import numpy as np
 import pysmt.shortcuts as smt
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import Polynomial, PolynomialParser, Polytope
 from wmpy.sampling import RejectionSampler
 
 
@@ -44,8 +44,10 @@ class RejectionIntegrator:
         if integrand.is_zero:
             return 0.0
 
-        uniform_weight = Polynomial(smt.Real(1), integrand.variables, integrand.env)
         lower, upper = polytope.outer_box
+        uniform_weight = PolynomialParser(integrand.variables, integrand.env).parse(
+            smt.Real(1)
+        )
         sampler = RejectionSampler(polytope, uniform_weight)
         valid_sample = sampler.sample(self.n_samples, max_iterations=max_iterations)
 

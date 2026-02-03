@@ -3,7 +3,7 @@ import pytest
 
 import pysmt.shortcuts as smt
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 from wmpy.integration import CacheWrapper
 
 env = smt.get_env()
@@ -32,6 +32,7 @@ class DummyIntegrator:
 def test_integrate(n):
 
     variables = [smt.Symbol(f"x{i}", smt.REAL) for i in range(n)]
+    parser = PolynomialParser(variables, env)
 
     hypercube = []
     for var in variables:
@@ -40,11 +41,11 @@ def test_integrate(n):
     h1 = smt.LE(variables[0], variables[1])
     h2 = smt.LE(smt.Plus(variables[-2], variables[-1]), smt.Real(1))
 
-    polytope1 = Polytope(hypercube + [h1], variables, env)
-    polytope2 = Polytope(hypercube + [h2], variables, env)
+    polytope1 = Polytope(hypercube + [h1], parser)
+    polytope2 = Polytope(hypercube + [h2], parser)
 
-    integrand1 = Polynomial(smt.Real(1337), variables, env)
-    integrand2 = Polynomial(smt.Plus(variables[0], variables[-1]), variables, env)
+    integrand1 = parser.parse(smt.Real(1337))
+    integrand2 = parser.parse(smt.Plus(variables[0], variables[-1]))
 
     inventive_integrator = CacheWrapper(InventiveIntegrator())
 
@@ -71,7 +72,7 @@ def test_integrate(n):
 def test_integrate_batch(n):
 
     variables = [smt.Symbol(f"x{i}", smt.REAL) for i in range(n)]
-
+    parser = PolynomialParser(variables, env)
     hypercube = []
     for var in variables:
         hypercube.extend([smt.LE(smt.Real(0), var), smt.LE(var, smt.Real(1))])
@@ -79,11 +80,11 @@ def test_integrate_batch(n):
     h1 = smt.LE(variables[0], variables[1])
     h2 = smt.LE(smt.Plus(variables[-2], variables[-1]), smt.Real(1))
 
-    polytope1 = Polytope(hypercube + [h1], variables, env)
-    polytope2 = Polytope(hypercube + [h2], variables, env)
+    polytope1 = Polytope(hypercube + [h1], parser)
+    polytope2 = Polytope(hypercube + [h2], parser)
 
-    integrand1 = Polynomial(smt.Real(1337), variables, env)
-    integrand2 = Polynomial(smt.Plus(variables[0], variables[-1]), variables, env)
+    integrand1 = parser.parse(smt.Real(1337))
+    integrand2 = parser.parse(smt.Plus(variables[0], variables[-1]))
 
     subbatch = [
         (polytope1, integrand1),

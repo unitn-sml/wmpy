@@ -5,7 +5,7 @@ import networkx as nx
 from pysmt.fnode import FNode
 from pysmt.typing import REAL, BOOL
 
-from .polynomial import Polynomial
+from .polynomial import Polynomial, PolynomialParser
 from .polytope import Polytope
 from wmpy.enumeration.enumerator import Enumerator
 
@@ -13,23 +13,24 @@ from wmpy.enumeration.enumerator import Enumerator
 class AssignmentConverter:
     """This class is responsible of converting the pysmt assignments returned by an enumerator into pairs <Polytope, Polynomial>."""
 
-    def __init__(self, enumerator: "Enumerator") -> None:
+    def __init__(self, enumerator: "Enumerator", domain: Collection[FNode]) -> None:
         """Default constructor.
 
         Args:
             enumerator: the enumerator instance
+            domain: list of real variables in pysmt format
         """
         self.enumerator = enumerator
+        self.poly_parser = PolynomialParser(domain, self.enumerator.env)
 
     def convert(
-        self, truth_assignment: dict[FNode, bool], domain: Collection[FNode]
+        self, truth_assignment: dict[FNode, bool]
     ) -> tuple[Polytope, Polynomial]:
         """Converts a truth assignment (as returned by an Enumerator)
         into a <Polytope, Polynomial> pair.
 
         Args:
             truth_assignment: mapping pysmt atoms to bool
-            domain: list of real variables in pysmt format
 
         Returns:
             A convex integration problem as a pair of instances of Polytope and Polynomial.
@@ -87,7 +88,7 @@ class AssignmentConverter:
             uncond_weight = uncond_weight.substitute({alias: aliases[alias]})
 
         # substitute all constants
-        if constants:
+        if len(constants) > 0:
             uncond_weight = uncond_weight.substitute(constants)
             convex_formula = convex_formula.substitute(constants)
 
@@ -112,7 +113,7 @@ class AssignmentConverter:
             else:
                 raise NotImplementedError("Unhandled case")
 
-        polytope = Polytope(inequalities, domain, env=self.enumerator.env)
-        polynomial = Polynomial(uncond_weight, domain, env=self.enumerator.env)
+        polytope = Polytope(inequalities, self.poly_parser)
+        polynomial = self.poly_parser.parse(uncond_weight)
 
         return polytope, polynomial

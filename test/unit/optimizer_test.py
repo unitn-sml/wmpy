@@ -2,7 +2,7 @@ import numpy as np
 import pysmt.shortcuts as smt
 import pytest
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 from wmpy.optimization import ScipyOptimizer
 
 
@@ -12,10 +12,10 @@ def optimizer(request):
 
 
 env = smt.get_env()
-
 LOWER, UPPER = 1, 3
 HALF = (UPPER + LOWER) / 2
 x, y = smt.Symbol("x", smt.REAL), smt.Symbol("y", smt.REAL)
+variables = [x, y]
 bbox = [
     smt.LE(smt.Real(LOWER), x),
     smt.LE(x, smt.Real(UPPER)),
@@ -37,13 +37,14 @@ h2 = smt.LE(y, smt.Plus(smt.Times(smt.Real(m(p3, p4)), x), smt.Real(q(p3, p4))))
 h3 = smt.LE(smt.Plus(smt.Times(smt.Real(m(p1, p3)), x), smt.Real(q(p1, p3))), y)
 h4 = smt.LE(y, smt.Plus(smt.Times(smt.Real(m(p2, p4)), x), smt.Real(q(p2, p4))))
 
-p_univ = Polytope(bbox, [x, y], env)
-p_oblique = Polytope([h1, h2, h3, h4], [x, y], env)
+parser = PolynomialParser(variables, env)
+p_univ = Polytope(bbox, parser)
+p_oblique = Polytope([h1, h2, h3, h4], parser)
 
 
-f_x = Polynomial(x, [x, y], env)
-f_y = Polynomial(y, [x, y], env)
-f_lin1 = Polynomial(smt.Plus(x, y), [x, y], env)
+f_x = parser.parse(x)
+f_y = parser.parse(y)
+f_lin1 = parser.parse(smt.Plus(x, y))
 
 
 @pytest.mark.parametrize(

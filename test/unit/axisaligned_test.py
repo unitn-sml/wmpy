@@ -3,7 +3,7 @@ import pytest
 
 import pysmt.shortcuts as smt
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 from wmpy.integration import AxisAlignedWrapper, LattEIntegrator
 
 env = smt.get_env()
@@ -12,6 +12,8 @@ np.random.seed(666)
 x = smt.Symbol("x", smt.REAL)
 y = smt.Symbol("y", smt.REAL)
 variables = [x, y]
+
+parser = PolynomialParser(variables, env)
 
 
 class DummyIntegrator:
@@ -42,7 +44,7 @@ def test_integrate(f_vec2, exp_vec2):
     offsets = [-10, 0, 100]
 
     inequalities = hypercube(variables, sides, offsets)
-    aa_polytope = Polytope(inequalities, variables, env)
+    aa_polytope = Polytope(inequalities, parser)
 
     exp1, exp2 = exp_vec2
     c1, c2 = f_vec2
@@ -54,7 +56,7 @@ def test_integrate(f_vec2, exp_vec2):
         smt.Times(smt.Real(c1 + c2), smt.Pow(x, smt.Real(exp2))),
     )
 
-    integrand = Polynomial(expression, variables, env)
+    integrand = parser.parse(expression)
 
     result = aa_integrator.integrate(aa_polytope, integrand)
     gt = gt_integrator.integrate(aa_polytope, integrand)
@@ -64,7 +66,7 @@ def test_integrate(f_vec2, exp_vec2):
         smt.Plus(*[var for var in variables]),
         smt.Real(float(np.sum([sides, offsets]))),
     )
-    oblique_polytope = Polytope(inequalities + [oblique], variables, env)
+    oblique_polytope = Polytope(inequalities + [oblique], parser)
     with pytest.raises(Exception):
         result = aa_integrator.integrate(oblique_polytope, integrand)
 
@@ -82,16 +84,16 @@ def test_integrate_batch(sides, offsets):
     aa_integrator = AxisAlignedWrapper(DummyIntegrator())
 
     inequalities1 = hypercube(variables, sides, offsets)
-    polytope1 = Polytope(inequalities1, variables, env)
+    polytope1 = Polytope(inequalities1, parser)
 
     sides2 = sides * np.array([3, 10])
     offsets2 = offsets + np.array(sides)
     inequalities2 = hypercube(variables, sides2, offsets2)
-    polytope2 = Polytope(inequalities2, variables, env)
+    polytope2 = Polytope(inequalities2, parser)
 
     k1, k2 = 3.33, 15
-    polynomial1 = Polynomial(smt.Real(k1), variables, env)
-    polynomial2 = Polynomial(smt.Real(k2), variables, env)
+    polynomial1 = parser.parse(smt.Real(k1))
+    polynomial2 = parser.parse(smt.Real(k2))
 
     batch = [
         (polytope1, polynomial1),

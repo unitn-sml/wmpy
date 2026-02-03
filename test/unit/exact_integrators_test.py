@@ -5,7 +5,7 @@ import pysmt.shortcuts as smt
 from pysmt.typing import REAL
 from scipy.spatial import ConvexHull
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 
 
 def _polytope_from_inequalities(A, b):
@@ -122,8 +122,9 @@ def pytest_generate_tests(metafunc):
 
 def test_volume(exact_integrator, inequalities, variables, volume):
     env = smt.get_env()
-    polynomial = Polynomial(smt.Real(1.0), variables, env)
-    polytope = Polytope(inequalities, variables, env)
+    parser = PolynomialParser(variables, env)
+    polynomial = parser.parse(smt.Real(1.0))
+    polytope = Polytope(inequalities, parser)
 
     result = exact_integrator().integrate(polytope, polynomial)
     assert np.isclose(

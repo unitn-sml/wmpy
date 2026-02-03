@@ -25,12 +25,14 @@ class WMISolver:
     def __init__(
         self,
         enumerator: Enumerator,
+        domain: Collection[FNode],
         integrator: Optional[Integrator] = None,
     ):
         """Default constructor.
 
         Args:
             enumerator: an instance of Enumerator (support, weight)
+            domain: the continuous integration domain (a list of pysmt real variables)
             integrator: an Integrator instance (default: RejectionIntegrator)
         """
         self.enumerator = enumerator
@@ -40,15 +42,13 @@ class WMISolver:
         else:
             self.integrator = self.DEF_INTEGRATOR()
 
-        self.converter = AssignmentConverter(self.enumerator)
+        self.converter = AssignmentConverter(self.enumerator, domain)
 
-    def compute(self, query: FNode, domain: Collection[FNode]) -> dict[str, np.ndarray]:
+    def compute(self, query: FNode) -> dict[str, np.ndarray]:
         """Computes the weighted model integral of a given query formula.
 
         Args:
             query: the query as a pysmt formula
-            domain: the continuous integration domain (a list of pysmt real variables)
-
 
         Returns:
             A dictionary containing the following entries:
@@ -58,7 +58,7 @@ class WMISolver:
         convex_integrals = []
         n_unassigned_bools = []
         for truth_assignment, nub in self.enumerator.enumerate(query):
-            convex_integrals.append(self.converter.convert(truth_assignment, domain))
+            convex_integrals.append(self.converter.convert(truth_assignment))
             n_unassigned_bools.append(nub)
 
         factors = [2**nb for nb in n_unassigned_bools]

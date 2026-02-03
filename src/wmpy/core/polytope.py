@@ -3,8 +3,8 @@ import numpy as np
 from pysmt.environment import Environment
 from pysmt.fnode import FNode
 
-from wmpy.core import Polynomial
 from wmpy.core.inequality import Inequality
+from wmpy.core.polynomial import PolynomialParser
 import wmpy.optimization as opt
 
 
@@ -19,29 +19,23 @@ class Polytope:
         outer_box: the smallest enclosing axis-aligned box (optional)
     """
 
-    def __init__(
-        self,
-        expressions: Collection[FNode],
-        variables: Collection[FNode],
-        env: Environment,
-    ):
+    def __init__(self, expressions: Collection[FNode], parser: PolynomialParser):
         """Default constructor for a H-polytope defined on an ordered list of variables (the continuous integration domain).
 
         Args:
-           expressions: list of linear inequalities in pysmt format
-           variables: list of pysmt real variables
-           env: the pysmt environment
+            expressions: list of linear inequalities in pysmt format
+            parser: a polynomial parser instance
         """
 
         self.inequalities: list[Inequality] = []
         for expr in expressions:
             if expr.is_le() or expr.is_lt():
-                self.inequalities.append(Inequality(expr, variables, env))
+                self.inequalities.append(Inequality(expr, parser))
             else:
                 raise ValueError(f"Can't parse {expr}, not an (in)equality.")
 
-        self.variables = variables
-        self.env = env
+        self.variables = parser.variables
+        self.env = parser.env
         self._inner_box: Optional[tuple[np.ndarray, np.ndarray]] = None
         self._outer_box: Optional[tuple[np.ndarray, np.ndarray]] = None
 

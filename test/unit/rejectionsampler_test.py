@@ -3,7 +3,7 @@ import pytest
 
 import pysmt.shortcuts as smt
 
-from wmpy.core import Polynomial, Polytope
+from wmpy.core import PolynomialParser, Polytope
 from wmpy.sampling import RejectionSampler
 
 SEED = 666
@@ -13,16 +13,18 @@ N_SAMPLES = 777
 @pytest.mark.parametrize("n", [2, 3, 4])
 def test_no_infeasible_sample(n):
     env = smt.get_env()
-    inequalities = []
     variables = [smt.Symbol(f"x{i}", smt.REAL) for i in range(n)]
+    parser = PolynomialParser(variables, env)
+
+    inequalities = []
     for xi in variables:
         inequalities.extend([smt.LE(smt.Real(0), xi), smt.LE(xi, smt.Real(1))])
 
     for i in range(len(variables) - 1):
         inequalities.append(smt.LE(variables[i], variables[i + 1]))
 
-    polynomial = Polynomial(smt.Real(1), variables, env)
-    polytope = Polytope(inequalities, variables, env)
+    polynomial = parser.parse(smt.Real(1))
+    polytope = Polytope(inequalities, parser)
     sample = RejectionSampler(polytope, polynomial, SEED).sample(N_SAMPLES)
     for s in sample:
         chi_s = smt.And(
@@ -34,9 +36,10 @@ def test_no_infeasible_sample(n):
 def test_null_density_error():
     env = smt.get_env()
     x = smt.Symbol("x", smt.REAL)
-    variables = [x]
+    parser = PolynomialParser([x], env)
+
     inequalities = [smt.LE(smt.Real(0), x), smt.LE(x, smt.Real(1))]
-    polynomial = Polynomial(smt.Real(0), variables, env)
-    polytope = Polytope(inequalities, variables, env)
+    polynomial = parser.parse(smt.Real(0))
+    polytope = Polytope(inequalities, parser)
     with pytest.raises(ValueError):
         sample = RejectionSampler(polytope, polynomial, SEED).sample(N_SAMPLES)
