@@ -25,6 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ...
 
+## [0.2.1] - 2026-02-03
+
+### Added
+
+- `optimization` submodule for convex optimization via `CvxpyOptimizer`
+- `Polytope.inner_box` computation
+
+### Changed
+
+- `Polynomial.inner_box` is now a property (rather than a method)
+
+### Fixed
+
+- Major bug in rejection sampling
+
+
 
 ## [0.2.0] - 2025-12-02
 
@@ -68,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [unreleased]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...HEAD
+[0.2.1]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.2.1
 [0.2.0]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.2.0
 [0.1.1]: https://github.com/unitn-sml/wmpy/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/unitn-sml/wmpy/releases/tag/v0.1.0
