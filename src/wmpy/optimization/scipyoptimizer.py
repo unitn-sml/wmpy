@@ -116,7 +116,9 @@ class ScipyOptimizer:
                     method="highs-ds",
                     bounds=(None, None),
                 )
-                assert res.x is not None
+                if res.x is None:
+                    raise RuntimeError("scipy.optimize failed, message: "+ res.message)
+
                 result_array.append(res.x[i])
 
         return (np.array(lowerl), np.array(upperl))
