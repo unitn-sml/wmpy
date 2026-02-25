@@ -29,10 +29,7 @@ class Polytope:
 
         self.inequalities: list[Inequality] = []
         for expr in expressions:
-            if expr.is_le() or expr.is_lt():
-                self.inequalities.append(Inequality(expr, parser))
-            else:
-                raise ValueError(f"Can't parse {expr}, not an (in)equality.")
+            self.inequalities.append(Inequality(expr, parser))
 
         self.variables = parser.variables
         self.env = parser.env
@@ -42,8 +39,8 @@ class Polytope:
     @property
     def inner_box(self) -> tuple[np.ndarray, np.ndarray]:
         if self._inner_box is None:
-            # self._inner_box = opt.ScipyOptimizer().compute_inner_box(self)
-            self._inner_box = opt.CvxpyOptimizer().compute_inner_box(self)
+            lower, upper, _ = opt.CvxpyOptimizer().compute_inner_box(self)
+            self._inner_box = lower, upper
 
         return self._inner_box
 

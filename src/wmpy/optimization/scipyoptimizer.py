@@ -34,6 +34,7 @@ class ScipyOptimizer:
 
         """
 
+        """
         A, B, S = polytope.to_numpy()
         N = len(polytope.variables)
 
@@ -84,6 +85,7 @@ class ScipyOptimizer:
         print("message:", res.message)
         print("n.iters:", res.nit)
         print("l*:", res.x[:N], "u*:", res.x[N:])
+        """
 
         raise NotImplementedError("TOFIX")
         # return (res.x[:N], res.x[N:])
@@ -117,7 +119,7 @@ class ScipyOptimizer:
                     bounds=(None, None),
                 )
                 if res.x is None:
-                    raise RuntimeError("scipy.optimize failed, message: "+ res.message)
+                    raise RuntimeError("scipy.optimize failed, message: " + res.message)
 
                 result_array.append(res.x[i])
 

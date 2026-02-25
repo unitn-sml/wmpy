@@ -6,5 +6,6 @@ It exposes:
 - WMSampler: a sampler for non-convex weighted SMT formulas
 """
 
+from .incrementalbounder import IncrementalBounder
 from .wmisolver import WMISolver
 from .wmsampler import WMSampler

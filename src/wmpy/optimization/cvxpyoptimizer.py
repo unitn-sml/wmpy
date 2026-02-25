@@ -8,17 +8,9 @@ if TYPE_CHECKING:
 
 class CvxpyOptimizer:
 
-    DEF_SOLVER = "SCS"
-
-    def __init__(self, epsilon: float = 1e-2) -> None:
-        """Default constructor.
-
-        Args:
-            epsilon: small float constant used to enforce strict inequality constraints
-        """
-        self.epsilon = epsilon
-
-    def compute_inner_box(self, polytope: "Polytope") -> tuple[np.ndarray, np.ndarray]:
+    def compute_inner_box(
+        self, polytope: "Polytope", epsilon: float = 1e-15, max_iter: int = 200
+    ) -> tuple[np.ndarray, np.ndarray, bool]:
         """Returns the largest axis-aligned hyperrectangle fully
         enclosed in the polytope by solving the convex optimization
         problem on 2N variables described here:
@@ -29,6 +21,8 @@ class CvxpyOptimizer:
 
         Args:
             polytope: the Polytope instance
+            epsilon: tolerance parameter for convex optimization (def: 1e-15)
+            max_iter: maximum number of iterations
 
         Returns:
             Two numpy arrays corresponding to the extremes of the box.
@@ -45,13 +39,29 @@ class CvxpyOptimizer:
 
         obj = -cp.geo_mean(u - l)
         minimizer = cp.Minimize(obj)
-        constraints = [Aplus @ u - Aminus @ l <= B]
+        constraints = [A @ l <= B, A @ u <= B, Aplus @ u - Aminus @ l <= B]
+
         prob = cp.Problem(minimizer, constraints)
 
-        l1dist = -prob.solve(solver="SCS", eps=1e-8)
+        try:
+            prob.solve(
+                solver="clarabel",
+                max_iter=max_iter,
+                tol_feas=epsilon,
+                tol_gap_abs=epsilon,
+                tol_gap_rel=epsilon,
+                tol_infeas_abs=epsilon,
+                tol_infeas_rel=epsilon,
+                # tol_ktratio=epsilon,
+                verbose=False,
+            )
+        except cp.error.SolverError:
+            prob.solve(solver="scs")
+            # raise RuntimeError("Cvxpy solver error")
 
-        assert np.abs(l1dist) != np.inf, "Unbounded problem"
+        if np.abs(prob.value) == np.inf:
+            raise ValueError("Unbounded problem")
+
         assert l.value is not None
         assert u.value is not None
-
-        return (l.value, u.value)
+        return l.value, u.value, prob.status == cp.OPTIMAL

@@ -1,8 +1,8 @@
 from typing import Any, Collection
 
 import numpy as np
-from pysmt.environment import Environment
 from pysmt.fnode import FNode
+from pysmt.shortcuts import LE, LT
 
 from wmpy.core.polynomial import PolynomialParser
 
@@ -29,6 +29,14 @@ class Inequality:
         """
         if expr.is_le() or expr.is_lt():
             self.strict = expr.is_lt()
+        elif expr.is_not() and (expr.args()[0].is_le() or expr.args()[0].is_lt()):
+            neg_ineq = expr.args()[0]
+            first, second = neg_ineq.args()
+            self.strict = neg_ineq.is_le()
+            if neg_ineq.is_le():
+                expr = LT(second, first)
+            else:
+                expr = LE(second, first)
         else:
             raise ValueError("Not an inequality")
 

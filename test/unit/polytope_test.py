@@ -90,58 +90,68 @@ h3 = smt.LE(smt.Real(1 / 2), x)
 def test_polytope_outer_box1():
     lower, upper = Polytope(box, parser).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_outer_box2():
     lower, upper = Polytope(box + [h1], parser).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_outer_box3():
     lower, upper = Polytope(box + [h2], parser).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_outer_box4():
     lower, upper = Polytope(box + [h1, h2], parser).outer_box
     expl, expu = np.array([0, 0]), np.array([1, 1 / 2])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_outer_box5():
     lower, upper = Polytope(box + [h1, h2, h3], parser).outer_box
     expl, expu = np.array([1 / 2, 0]), np.array([1, 1 / 2])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_inner_box1():
     lower, upper = Polytope(box, parser).inner_box
     expl, expu = np.array([0, 0]), np.array([1, 1])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_inner_box2():
     lower, upper = Polytope(box + [h1], parser).inner_box
     expl, expu = np.array([0, 0]), np.array([1 / 2, 1 / 2])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_inner_box3():
     lower, upper = Polytope(box + [h2], parser).inner_box
     expl, expu = np.array([1 / 2, 0]), np.array([1, 1 / 2])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_inner_box4():
     lower, upper = Polytope(box + [h1, h2], parser).inner_box
     expl, expu = np.array([1 / 4, 0]), np.array([3 / 4, 1 / 4])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
 
 
 def test_polytope_inner_box5():
     lower, upper = Polytope(box + [h1, h2, h3], parser).inner_box
     expl, expu = np.array([1 / 2, 0]), np.array([3 / 4, 1 / 4])
-    assert np.isclose(lower, expl).all() and np.isclose(upper, expu).all()
+    assert np.isclose(lower, expl).all(), f"expected lower: {expl}, got: {lower}"
+    assert np.isclose(upper, expu).all(), f"expected upper: {expu}, got: {upper}"
